@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Demonstração do uso de imagens no PDF Builder.
@@ -68,8 +69,7 @@ public final class ImageDemo {
                     .build();
 
             // Carrega e adiciona imagens
-            File imageFile = new File("C:\\Users\\joabs\\Documents\\Projetos\\MeusProjetos\\pdf-builder-workspace" +
-                    "\\pdf-builder\\src\\main\\java\\br\\com\\nutit\\pdfbuilder\\examples\\sample-image.jpg");
+            File imageFile = new File("src/main/java/io/github/joabsonlg/pdfbuilder/examples/sample-image.jpg");
 
             // Imagem original
             Image originalImage = Image.builder(builder.getDocument(), imageFile)
@@ -117,7 +117,7 @@ public final class ImageDemo {
             builder.save("demo_imagens.pdf");
             LOGGER.info("PDF gerado com sucesso: demo_imagens.pdf");
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
         }
     }

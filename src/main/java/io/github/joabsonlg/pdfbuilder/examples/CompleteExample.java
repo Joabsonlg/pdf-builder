@@ -17,12 +17,16 @@ import io.github.joabsonlg.pdfbuilder.core.SafeArea;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public final class CompleteExample {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CompleteExample.class);
 
     private CompleteExample() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
@@ -66,12 +70,6 @@ public final class CompleteExample {
                     .withColor(Color.BLACK)
                     .build();
 
-            TextStyle blueStyle = TextStyle.builder()
-                    .withFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD))
-                    .withFontSize(HeadingLevel.H1.getFontSize())
-                    .withColor(new Color(0, 102, 204))
-                    .build();
-
             // Configura o logo
             LogoStyle logoStyle = LogoStyle.builder()
                     .withFontSize(16f)
@@ -85,7 +83,7 @@ public final class CompleteExample {
                     .build();
 
             // Configura o logo com imagens
-            String imagePath = "C:\\Users\\joabs\\Documents\\Projetos\\MeusProjetos\\pdf-builder-workspace\\pdf-builder\\src\\main\\java\\br\\com\\nutit\\pdfbuilder\\examples\\sample-image.jpg";
+            String imagePath = "src/main/java/io/github/joabsonlg/pdfbuilder/examples/sample-image.jpg";
             builder.setLogo("PDF Builder - Exemplo Completo", logoStyle, imagePath, imagePath);
 
             // Configura a numeração de páginas
@@ -204,8 +202,8 @@ public final class CompleteExample {
             // Salva o documento
             builder.save("complete-example.pdf");
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            LOGGER.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
         }
     }
 }

@@ -59,19 +59,13 @@ public class PDFBuilder {
 
         try {
             this.contentStream = new PDPageContentStream(document, currentPage);
-            // Inicializa a posição atual no topo da página
             this.currentPosition = Coordinates.origin(config.getPageSize(), config.getSafeArea())
                     .moveTo(
                             config.getSafeArea().getMarginLeft(),
                             config.getPageSize().getHeight() - config.getSafeArea().getMarginTop()
                     );
-
-            // Adiciona o logo na primeira página se existir
-            if (logo != null) {
-                addLogo();
-            }
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao criar PDFBuilder", e);
+            LOGGER.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
         }
     }
 

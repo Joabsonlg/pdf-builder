@@ -14,10 +14,14 @@ import io.github.joabsonlg.pdfbuilder.core.SafeArea;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.awt.Color;
+import java.awt.*;
+import java.io.IOException;
 
 public final class HeaderFooterDemo {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeaderFooterDemo.class);
 
     private HeaderFooterDemo() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
@@ -57,21 +61,19 @@ public final class HeaderFooterDemo {
 
             // Configura o logo (título do documento)
             LogoStyle logoStyle = LogoStyle.builder()
-                .withFontSize(16f)
-                .withColor(Color.BLACK)
-                .withMarginBottom(20f)
-                .withDrawLine(true)
-                .withLineWidth(1f)
-                .withLineColor(new Color(43, 43, 43, 128))
-                .withImageHeight(30f) // Altura das imagens do logo
-                .withImageMargin(10f) // Margem das imagens
-                .build();
+                    .withFontSize(16f)
+                    .withColor(Color.BLACK)
+                    .withMarginBottom(20f)
+                    .withDrawLine(true)
+                    .withLineWidth(1f)
+                    .withLineColor(new Color(43, 43, 43, 128))
+                    .withImageHeight(30f) // Altura das imagens do logo
+                    .withImageMargin(10f) // Margem das imagens
+                    .build();
 
             // Caminhos das imagens do logo (exemplo)
-            String leftImagePath = "C:\\Users\\joabs\\Documents\\Projetos\\MeusProjetos\\pdf-builder-workspace\\pdf-builder\\src\\main\\java\\br\\com\\n" + //
-                                        "utit\\pdfbuilder\\examples\\sample-image.jpg"; // Substitua pelo caminho real da imagem
-            String rightImagePath = "C:\\Users\\joabs\\Documents\\Projetos\\MeusProjetos\\pdf-builder-workspace\\pdf-builder\\src\\main\\java\\br\\com\\n" + //
-                                        "utit\\pdfbuilder\\examples\\sample-image.jpg"; // Substitua pelo caminho real da imagem
+            String leftImagePath = "src/main/java/io/github/joabsonlg/pdfbuilder/examples/sample-image.jpg";
+            String rightImagePath = "src/main/java/io/github/joabsonlg/pdfbuilder/examples/sample-image.jpg";
 
             // Adiciona o logo com imagens
             builder.setLogo("PDF Builder", logoStyle, leftImagePath, rightImagePath);
@@ -120,9 +122,9 @@ public final class HeaderFooterDemo {
             // Salva o documento
             builder.save("header-footer-demo.pdf");
 
-            System.out.println("PDF gerado com sucesso: header-footer-demo.pdf");
-        } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.info("PDF gerado com sucesso: header-footer-demo.pdf");
+        } catch (IOException e) {
+            LOGGER.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
         }
     }
 }

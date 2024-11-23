@@ -1,16 +1,16 @@
 package io.github.joabsonlg.pdfbuilder.components.image;
 
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.apache.pdfbox.util.Matrix;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.util.Matrix;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.awt.Dimension;
 
 /**
  * Componente para renderização de imagens em documentos PDF.
@@ -45,34 +45,36 @@ public final class Image {
      * Renderiza a imagem no PDPageContentStream.
      */
     public float render(PDPageContentStream contentStream, float x, float y, float availableWidth, float imageWidth) throws IOException {
+        // Calcula as dimensões com base na qualidade
+        float adjustedWidth = width * quality;
+        float adjustedHeight = height * quality;
+
         // Calcula a posição X baseada no alinhamento
         float xPos = switch (alignment) {
-            case CENTER -> x + (availableWidth - imageWidth) / 2;
-            case RIGHT -> x + (availableWidth - imageWidth);
+            case CENTER -> x + (availableWidth - adjustedWidth) / 2;
+            case RIGHT -> x + (availableWidth - adjustedWidth);
             default -> x;
         };
-
-        float imageHeight = (imageWidth / width) * height;
 
         // Salva o estado gráfico atual
         contentStream.saveGraphicsState();
 
         // Aplica rotação se necessário
         if (rotation != 0) {
-            float centerX = xPos + imageWidth / 2;
-            float centerY = y - imageHeight / 2;
+            float centerX = xPos + adjustedWidth / 2;
+            float centerY = y - adjustedHeight / 2;
             contentStream.transform(
-                Matrix.getRotateInstance(Math.toRadians(rotation), centerX, centerY)
+                    Matrix.getRotateInstance(Math.toRadians(rotation), centerX, centerY)
             );
         }
 
-        // Renderiza a imagem
-        contentStream.drawImage(image, xPos, y - imageHeight, imageWidth, imageHeight);
+        // Renderiza a imagem com dimensões ajustadas
+        contentStream.drawImage(image, xPos, y - adjustedHeight, adjustedWidth, adjustedHeight);
 
         // Restaura o estado gráfico
         contentStream.restoreGraphicsState();
 
-        float newY = y - imageHeight;
+        float newY = y - adjustedHeight;
 
         // Adiciona legenda se existir
         if (caption != null && !caption.isEmpty()) {
@@ -81,20 +83,12 @@ public final class Image {
             contentStream.setFont(font, captionFontSize);
 
             float captionWidth = font.getStringWidth(caption) / 1000 * captionFontSize;
-            float captionX;
-
-            // Alinha a legenda com a imagem
-            switch (alignment) {
-                case CENTER:
-                    captionX = xPos + (imageWidth - captionWidth) / 2;
-                    break;
-                case RIGHT:
-                    captionX = xPos + imageWidth - captionWidth;
-                    break;
-                default: // LEFT
-                    captionX = xPos;
-                    break;
-            }
+            float captionX = switch (alignment) {
+                case CENTER -> xPos + (imageWidth - captionWidth) / 2;
+                case RIGHT -> xPos + imageWidth - captionWidth;
+                default -> // LEFT
+                        xPos;
+            };
 
             contentStream.newLineAtOffset(captionX, newY - captionFontSize - 5);
             contentStream.showText(caption);
@@ -110,7 +104,7 @@ public final class Image {
      * Retorna as dimensões atuais da imagem.
      */
     public Dimension getDimensions() {
-        return new Dimension((int)width, (int)height);
+        return new Dimension((int) width, (int) height);
     }
 
     public static Builder builder(PDDocument document, File imageFile) throws IOException {

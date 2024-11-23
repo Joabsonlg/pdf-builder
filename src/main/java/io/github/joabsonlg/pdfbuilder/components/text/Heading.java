@@ -88,6 +88,9 @@ public final class Heading {
             startX = x + maxWidth - textWidth;
         }
 
+        // Aplica o espaçamento antes
+        y -= spacingBefore;
+
         // Renderiza o texto
         contentStream.beginText();
         contentStream.newLineAtOffset(startX, y);

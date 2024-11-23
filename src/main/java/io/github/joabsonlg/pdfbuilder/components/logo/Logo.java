@@ -36,14 +36,6 @@ public final class Logo {
         // Calcula a largura do texto
         float textWidth = style.getFont().getStringWidth(title) / 1000 * style.getFontSize();
 
-        // Calcula o espaço disponível para o texto considerando as imagens
-        float availableWidth = contentWidth;
-        float imageSpace = 0;
-        if (leftImage != null || rightImage != null) {
-            imageSpace = style.getImageWidth() + (2 * style.getImageMargin());
-            availableWidth -= (2 * imageSpace); // Espaço para ambas as imagens
-        }
-
         // Renderiza a imagem da esquerda
         if (leftImage != null) {
             float imageX = marginLeft + style.getImageMargin();

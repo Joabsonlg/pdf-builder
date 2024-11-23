@@ -58,7 +58,6 @@ public final class Table {
             for (int i = 0; i < adjustedColumnWidths.length; i++) {
                 adjustedColumnWidths[i] *= scaleFactor;
             }
-            tableWidth = availableWidth;
         }
 
         // Desenha o cabeçalho
@@ -77,7 +76,7 @@ public final class Table {
     }
 
     private float drawRow(PDPageContentStream contentStream, List<String> row, float x, float y, boolean isHeader, float[] columnWidths) throws IOException {
-        float currentX = x;
+        float currentX;
         Color bgColor = isHeader ? headerBackgroundColor : null;
         Color txtColor = isHeader ? headerTextColor : textColor;
 
