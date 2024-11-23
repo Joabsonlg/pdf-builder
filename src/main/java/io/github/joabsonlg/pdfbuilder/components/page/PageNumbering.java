@@ -1,21 +1,20 @@
 package io.github.joabsonlg.pdfbuilder.components.page;
 
 import io.github.joabsonlg.pdfbuilder.components.text.TextAlignment;
-import io.github.joabsonlg.pdfbuilder.components.text.TextStyle;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 
 /**
  * Componente para adicionar numeração de páginas em documentos PDF.
  * Suporta diferentes formatos e posicionamentos.
  */
-public class PageNumbering {
-    private static final Logger logger = LoggerFactory.getLogger(PageNumbering.class);
+public final class PageNumbering {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageNumbering.class);
 
     private final Format format;
     private final Position position;
@@ -41,10 +40,10 @@ public class PageNumbering {
      * Renderiza o número da página no documento.
      *
      * @param contentStream Stream do conteúdo da página
-     * @param pageWidth Largura da página
-     * @param pageHeight Altura da página
-     * @param pageNumber Número da página atual
-     * @param totalPages Total de páginas no documento
+     * @param pageWidth     Largura da página
+     * @param pageHeight    Altura da página
+     * @param pageNumber    Número da página atual
+     * @param totalPages    Total de páginas no documento
      */
     public void render(PDPageContentStream contentStream, float pageWidth, float pageHeight, int pageNumber, int totalPages) throws IOException {
         String text = formatPageNumber(pageNumber, totalPages);
@@ -151,13 +150,9 @@ public class PageNumbering {
      * Formato da numeração de página.
      */
     public enum Format {
-        /** Apenas o número da página (ex: "1") */
         SIMPLE,
-        /** Número da página com total (ex: "1 de 10") */
         WITH_TOTAL,
-        /** Número da página com traço e total (ex: "1 - 10") */
         DASH_TOTAL,
-        /** Número da página com total entre parênteses (ex: "1 (10)") */
         PARENTHESES_TOTAL
     }
 
@@ -165,9 +160,7 @@ public class PageNumbering {
      * Posição da numeração na página.
      */
     public enum Position {
-        /** No topo da página */
         TOP,
-        /** No rodapé da página */
         BOTTOM
     }
 }

@@ -18,8 +18,12 @@ import java.awt.Color;
 /**
  * Demonstração dos diferentes tipos de alinhamento de parágrafos e formatação rica.
  */
-public class ParagraphDemo {
-    private static final Logger logger = LoggerFactory.getLogger(ParagraphDemo.class);
+public final class ParagraphDemo {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParagraphDemo.class);
+
+    private ParagraphDemo() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     public static void main(String[] args) {
         try {
@@ -100,7 +104,8 @@ public class ParagraphDemo {
 
             Paragraph justified = Paragraph.builder()
                     .addStyledText("Alinhamento Justificado: ", boldStyle)
-                    .addStyledText("Este é um exemplo de texto justificado que demonstra como as palavras são distribuídas uniformemente. ", normalStyle)
+                    .addStyledText("Este é um exemplo de texto justificado que demonstra como as palavras são " +
+                            "distribuídas uniformemente. ", normalStyle)
                     .addStyledText("Observe que o espaçamento entre as palavras é ajustado ", italicStyle)
                     .addStyledText("para que o texto fique alinhado em ambas as margens. ", underlineStyle)
                     .addStyledText("Este é um recurso muito utilizado em livros e documentos formais.", colorStyle)
@@ -118,10 +123,10 @@ public class ParagraphDemo {
 
             // 5. Salvando o PDF
             builder.save("demo_paragrafos_formatados.pdf");
-            logger.info("PDF gerado com sucesso: demo_paragrafos_formatados.pdf");
+            LOGGER.info("PDF gerado com sucesso: demo_paragrafos_formatados.pdf");
 
         } catch (Exception e) {
-            logger.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
+            LOGGER.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
         }
     }
 }

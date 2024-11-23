@@ -15,8 +15,8 @@ import java.util.ArrayList;
  * Componente para renderizar listas ordenadas e não ordenadas em documentos PDF.
  * Suporta subitens e numeração hierárquica.
  */
-public class List {
-    private static final Logger logger = LoggerFactory.getLogger(List.class);
+public final class List {
+    private static final Logger LOGGER = LoggerFactory.getLogger(List.class);
 
     private final java.util.List<ListItem> items;
     private final boolean ordered;

@@ -5,7 +5,7 @@ env:
   # Build configurations
   JAVA_VERSION: '17'
   MAVEN_CLI_OPTS: "-B -ntp" # Non-interactive, no transfer progress
-  MAVEN_OPTS: "-Xmx4g -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" # More memory, less logging
+  MAVEN_OPTS: "-Xmx4g -Dorg.slf4j.simpleLOGGER.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" # More memory, less logging
   
   # Quality thresholds
   MIN_COVERAGE: 80

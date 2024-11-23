@@ -5,14 +5,14 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 
 /**
  * Componente para renderização de títulos e subtítulos.
  * Suporta numeração automática, diferentes níveis e espaçamento personalizado.
  */
-public class Heading {
+public final class Heading {
     private final HeadingLevel level;
     private final String text;
     private final TextStyle style;

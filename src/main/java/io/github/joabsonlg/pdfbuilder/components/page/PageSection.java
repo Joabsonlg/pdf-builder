@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Componente para renderização de cabeçalhos e rodapés em documentos PDF.
  */
-public class PageSection {
+public final class PageSection {
     private final String leftText;
     private final String centerText;
     private final String rightText;
@@ -93,7 +93,7 @@ public class PageSection {
         float contentWidth = pageWidth - marginLeft - marginRight;
         float textY = y;
         float lineY = y - (fontSize / 2); // Move a linha para baixo do texto
-        
+
         // Configura a fonte e cor
         contentStream.setFont(font, fontSize);
         contentStream.setNonStrokingColor(color);
@@ -153,7 +153,7 @@ public class PageSection {
         return new Builder();
     }
 
-    public static class Builder {
+    public static final class Builder {
         private String leftText;
         private String centerText;
         private String rightText;

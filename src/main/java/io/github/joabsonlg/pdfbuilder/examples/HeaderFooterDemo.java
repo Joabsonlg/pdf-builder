@@ -17,7 +17,12 @@ import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 import java.awt.Color;
 
-public class HeaderFooterDemo {
+public final class HeaderFooterDemo {
+
+    private HeaderFooterDemo() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     public static void main(String[] args) {
         try {
             // Configuração da área segura com header e footer

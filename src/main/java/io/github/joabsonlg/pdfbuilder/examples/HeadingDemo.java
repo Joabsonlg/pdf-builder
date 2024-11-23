@@ -15,8 +15,13 @@ import java.awt.Color;
 /**
  * Demonstração do uso de títulos e subtítulos.
  */
-public class HeadingDemo {
-    private static final Logger logger = LoggerFactory.getLogger(HeadingDemo.class);
+public final class HeadingDemo {
+
+    private HeadingDemo() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeadingDemo.class);
 
     public static void main(String[] args) {
         try {
@@ -84,7 +89,7 @@ public class HeadingDemo {
                 .addStyledText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
                     "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
                     "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
-                    "nisi ut aliquip ex ea commodo consequat.", 
+                    "nisi ut aliquip ex ea commodo consequat.",
                     TextStyle.builder()
                         .withFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA))
                         .withFontSize(12f)
@@ -101,10 +106,10 @@ public class HeadingDemo {
                 .addParagraph(text);
 
             builder.save("demo_titulos.pdf");
-            logger.info("PDF gerado com sucesso: demo_titulos.pdf");
+            LOGGER.info("PDF gerado com sucesso: demo_titulos.pdf");
 
         } catch (Exception e) {
-            logger.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
+            LOGGER.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
         }
     }
 }

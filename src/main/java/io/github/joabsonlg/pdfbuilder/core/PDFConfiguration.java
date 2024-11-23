@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
  * Configurações globais para documentos PDF.
  * Esta classe usa o padrão Builder para uma configuração fluente.
  */
-public class PDFConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(PDFConfiguration.class);
+public final class PDFConfiguration {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PDFConfiguration.class);
 
     // Valores padrão
     private static final PDRectangle DEFAULT_PAGE_SIZE = PDRectangle.A4;
@@ -40,21 +40,23 @@ public class PDFConfiguration {
         this.lineSpacing = builder.lineSpacing;
         this.safeArea = builder.safeArea;
 
-        logger.debug("PDFConfiguration criada com: pageSize={}, dpi={}, fontSize={}, lineSpacing={}",
-            pageSize, dpi, fontSize, lineSpacing);
+        LOGGER.debug("PDFConfiguration criada com: pageSize={}, dpi={}, fontSize={}, lineSpacing={}",
+                pageSize, dpi, fontSize, lineSpacing);
     }
 
     /**
      * Cria uma nova instância de PDFConfiguration com valores padrão.
+     *
      * @return Nova instância de PDFConfiguration
      */
     public static Builder create() {
-        logger.debug("Criando nova configuração PDF com valores padrão");
+        LOGGER.debug("Criando nova configuração PDF com valores padrão");
         return new Builder();
     }
 
     /**
      * Define o tamanho padrão da página.
+     *
      * @param pageSize Tamanho da página (ex: PDRectangle.A4)
      * @return Nova instância de PDFConfiguration
      * @throws IllegalArgumentException se pageSize for nulo
@@ -70,6 +72,7 @@ public class PDFConfiguration {
 
     /**
      * Define a resolução DPI para imagens.
+     *
      * @param dpi Valor DPI (dots per inch)
      * @return Nova instância de PDFConfiguration
      * @throws IllegalArgumentException se dpi for menor ou igual a zero
@@ -85,6 +88,7 @@ public class PDFConfiguration {
 
     /**
      * Define a qualidade de compressão para imagens.
+     *
      * @param quality Valor entre 0.0 e 1.0
      * @return Nova instância de PDFConfiguration
      * @throws IllegalArgumentException se o valor estiver fora do intervalo [0,1]
@@ -100,6 +104,7 @@ public class PDFConfiguration {
 
     /**
      * Define o tamanho da fonte.
+     *
      * @param fontSize Tamanho da fonte em pontos
      * @return Nova instância de PDFConfiguration
      * @throws IllegalArgumentException se fontSize for menor ou igual a zero
@@ -115,6 +120,7 @@ public class PDFConfiguration {
 
     /**
      * Define o espaçamento entre linhas.
+     *
      * @param lineSpacing Espaçamento em pontos
      * @return Nova instância de PDFConfiguration
      * @throws IllegalArgumentException se lineSpacing for menor ou igual a zero
@@ -130,6 +136,7 @@ public class PDFConfiguration {
 
     /**
      * Define a área segura.
+     *
      * @param safeArea Área segura
      * @return Nova instância de PDFConfiguration
      * @throws IllegalArgumentException se safeArea for nulo
@@ -169,13 +176,25 @@ public class PDFConfiguration {
     }
 
     // Métodos de conveniência para acessar margens
-    public float getMarginLeft() { return safeArea.getMarginLeft(); }
-    public float getMarginRight() { return safeArea.getMarginRight(); }
-    public float getMarginTop() { return safeArea.getMarginTop(); }
-    public float getMarginBottom() { return safeArea.getMarginBottom(); }
+    public float getMarginLeft() {
+        return safeArea.getMarginLeft();
+    }
+
+    public float getMarginRight() {
+        return safeArea.getMarginRight();
+    }
+
+    public float getMarginTop() {
+        return safeArea.getMarginTop();
+    }
+
+    public float getMarginBottom() {
+        return safeArea.getMarginBottom();
+    }
 
     /**
      * Calcula a área útil da página (área dentro das margens).
+     *
      * @return PDRectangle representando a área útil
      */
     public PDRectangle getContentArea() {
@@ -192,7 +211,8 @@ public class PDFConfiguration {
         private float fontSize = DEFAULT_FONT_SIZE;
         private float lineSpacing = DEFAULT_LINE_SPACING;
 
-        public Builder() {}
+        public Builder() {
+        }
 
         public Builder(PDFConfiguration pdfConfiguration) {
             this.pageSize = pdfConfiguration.pageSize;

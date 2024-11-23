@@ -2,6 +2,7 @@ package io.github.joabsonlg.pdfbuilder.components.text;
 
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * Componente para renderização de parágrafos com alinhamento e formatação rica.
  */
-public class Paragraph {
+public final class Paragraph {
     private final List<StyledText> styledTexts;
     private final TextAlignment alignment;
     private final float lineSpacing;
@@ -30,7 +31,7 @@ public class Paragraph {
         for (List<StyledText> line : lines) {
             float startX = calculateStartX(line, x, maxWidth);
             float wordSpacing = calculateWordSpacing(line, maxWidth);
-            
+
             float currentX = startX;
             for (int i = 0; i < line.size(); i++) {
                 StyledText styledText = line.get(i);
@@ -78,15 +79,15 @@ public class Paragraph {
 
         float totalTextWidth = 0;
         int spaces = line.size() - 1;
-        
+
         for (StyledText styledText : line) {
-            totalTextWidth += getStringWidth(styledText.getText(), 
-                styledText.getStyle().getFont(), 
-                styledText.getStyle().getFontSize());
+            totalTextWidth += getStringWidth(styledText.getText(),
+                    styledText.getStyle().getFont(),
+                    styledText.getStyle().getFontSize());
         }
 
         float totalSpaceWidth = maxWidth - totalTextWidth;
-        
+
         return totalSpaceWidth / spaces;
     }
 
@@ -96,10 +97,10 @@ public class Paragraph {
 
         for (int i = 0; i < line.size(); i++) {
             StyledText styledText = line.get(i);
-            lineWidth += getStringWidth(styledText.getText(), 
-                styledText.getStyle().getFont(), 
-                styledText.getStyle().getFontSize());
-            
+            lineWidth += getStringWidth(styledText.getText(),
+                    styledText.getStyle().getFont(),
+                    styledText.getStyle().getFontSize());
+
             if (i < line.size() - 1) {
                 lineWidth += spaceWidth;
             }
@@ -154,7 +155,9 @@ public class Paragraph {
     }
 
     public float getHeight() {
-        if (styledTexts.isEmpty()) return 0;
+        if (styledTexts.isEmpty()) {
+            return 0;
+        }
         return styledTexts.get(0).getStyle().getFontSize() * lineSpacing;
     }
 

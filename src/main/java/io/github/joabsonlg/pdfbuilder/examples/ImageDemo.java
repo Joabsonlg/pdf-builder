@@ -19,8 +19,13 @@ import java.io.File;
 /**
  * Demonstração do uso de imagens no PDF Builder.
  */
-public class ImageDemo {
-    private static final Logger logger = LoggerFactory.getLogger(ImageDemo.class);
+public final class ImageDemo {
+
+    private ImageDemo() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageDemo.class);
 
     public static void main(String[] args) {
         try {
@@ -63,7 +68,8 @@ public class ImageDemo {
                     .build();
 
             // Carrega e adiciona imagens
-            File imageFile = new File("C:\\Users\\joabs\\Documents\\Projetos\\MeusProjetos\\pdf-builder-workspace\\pdf-builder\\src\\main\\java\\br\\com\\nutit\\pdfbuilder\\examples\\sample-image.jpg");
+            File imageFile = new File("C:\\Users\\joabs\\Documents\\Projetos\\MeusProjetos\\pdf-builder-workspace" +
+                    "\\pdf-builder\\src\\main\\java\\br\\com\\nutit\\pdfbuilder\\examples\\sample-image.jpg");
 
             // Imagem original
             Image originalImage = Image.builder(builder.getDocument(), imageFile)
@@ -109,10 +115,10 @@ public class ImageDemo {
                             .build());
 
             builder.save("demo_imagens.pdf");
-            logger.info("PDF gerado com sucesso: demo_imagens.pdf");
+            LOGGER.info("PDF gerado com sucesso: demo_imagens.pdf");
 
         } catch (Exception e) {
-            logger.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
+            LOGGER.error("Erro ao gerar o PDF: {}", e.getMessage(), e);
         }
     }
 }

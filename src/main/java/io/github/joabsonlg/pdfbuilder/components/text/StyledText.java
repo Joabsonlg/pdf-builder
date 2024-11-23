@@ -12,6 +12,11 @@ public class StyledText {
         this.style = style;
     }
 
-    public String getText() { return text; }
-    public TextStyle getStyle() { return style; }
+    public String getText() {
+        return text;
+    }
+
+    public TextStyle getStyle() {
+        return style;
+    }
 }

@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Gerencia coordenadas e posicionamento no documento PDF.
  */
-public class Coordinates {
-    private static final Logger logger = LoggerFactory.getLogger(Coordinates.class);
+public final class Coordinates {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Coordinates.class);
 
     private final float x;
     private final float y;
@@ -24,6 +24,7 @@ public class Coordinates {
 
     /**
      * Cria uma nova instância de Coordinates na origem (0,0).
+     *
      * @param pageSize Tamanho da página
      * @param safeArea Área segura
      * @return Nova instância de Coordinates
@@ -34,6 +35,7 @@ public class Coordinates {
 
     /**
      * Move para uma posição específica.
+     *
      * @param x Coordenada X
      * @param y Coordenada Y
      * @return Nova instância de Coordinates
@@ -44,6 +46,7 @@ public class Coordinates {
 
     /**
      * Move relativamente à posição atual.
+     *
      * @param deltaX Deslocamento em X
      * @param deltaY Deslocamento em Y
      * @return Nova instância de Coordinates
@@ -54,6 +57,7 @@ public class Coordinates {
 
     /**
      * Move para uma posição relativa à área de conteúdo.
+     *
      * @param percentX Porcentagem da largura (0-100)
      * @param percentY Porcentagem da altura (0-100)
      * @return Nova instância de Coordinates
@@ -72,6 +76,7 @@ public class Coordinates {
 
     /**
      * Move para uma posição na área do cabeçalho.
+     *
      * @param percentX Porcentagem da largura (0-100)
      * @param percentY Porcentagem da altura do cabeçalho (0-100)
      * @return Nova instância de Coordinates
@@ -94,6 +99,7 @@ public class Coordinates {
 
     /**
      * Move para uma posição na área do rodapé.
+     *
      * @param percentX Porcentagem da largura (0-100)
      * @param percentY Porcentagem da altura do rodapé (0-100)
      * @return Nova instância de Coordinates
@@ -116,6 +122,7 @@ public class Coordinates {
 
     /**
      * Move para o topo da área de conteúdo.
+     *
      * @return Nova instância de Coordinates no topo da área de conteúdo
      */
     public Coordinates moveToTop() {
@@ -126,6 +133,7 @@ public class Coordinates {
 
     /**
      * Verifica se a posição atual está dentro da área segura.
+     *
      * @return true se estiver dentro da área segura
      */
     public boolean isInSafeArea() {
@@ -135,6 +143,7 @@ public class Coordinates {
     /**
      * Retorna a posição atual ajustada para estar dentro da área segura.
      * Se a posição atual estiver fora da área segura, move para o ponto mais próximo dentro dela.
+     *
      * @return Nova instância de Coordinates dentro da área segura
      */
     public Coordinates ensureInSafeArea() {
@@ -160,14 +169,25 @@ public class Coordinates {
             newY = contentArea.getUpperRightY();
         }
 
-        logger.debug("Ajustando coordenadas de ({},{}) para ({},{}) para respeitar área segura", 
-            x, y, newX, newY);
+        LOGGER.debug("Ajustando coordenadas de ({},{}) para ({},{}) para respeitar área segura",
+                x, y, newX, newY);
         return new Coordinates(newX, newY, pageSize, safeArea);
     }
 
     // Getters
-    public float getX() { return x; }
-    public float getY() { return y; }
-    public PDRectangle getPageSize() { return pageSize; }
-    public SafeArea getSafeArea() { return safeArea; }
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public PDRectangle getPageSize() {
+        return pageSize;
+    }
+
+    public SafeArea getSafeArea() {
+        return safeArea;
+    }
 }

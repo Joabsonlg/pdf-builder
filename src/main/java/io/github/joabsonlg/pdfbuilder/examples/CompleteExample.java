@@ -5,25 +5,29 @@ import io.github.joabsonlg.pdfbuilder.components.list.List.ListItem;
 import io.github.joabsonlg.pdfbuilder.components.logo.LogoStyle;
 import io.github.joabsonlg.pdfbuilder.components.page.PageNumbering;
 import io.github.joabsonlg.pdfbuilder.components.page.PageSectionStyle;
+import io.github.joabsonlg.pdfbuilder.components.table.Table;
 import io.github.joabsonlg.pdfbuilder.components.text.Heading;
 import io.github.joabsonlg.pdfbuilder.components.text.HeadingLevel;
 import io.github.joabsonlg.pdfbuilder.components.text.Paragraph;
 import io.github.joabsonlg.pdfbuilder.components.text.TextAlignment;
 import io.github.joabsonlg.pdfbuilder.components.text.TextStyle;
-import io.github.joabsonlg.pdfbuilder.components.table.Table;
 import io.github.joabsonlg.pdfbuilder.core.PDFBuilder;
 import io.github.joabsonlg.pdfbuilder.core.PDFConfiguration;
 import io.github.joabsonlg.pdfbuilder.core.SafeArea;
-
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 
-public class CompleteExample {
+public final class CompleteExample {
+
+    private CompleteExample() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     public static void main(String[] args) {
         try {
             // Configuração da área segura com header e footer
@@ -111,19 +115,19 @@ public class CompleteExample {
 
             // Adiciona texto introdutório
             builder.addParagraph(Paragraph.builder()
-                    .addStyledText("Este é um exemplo completo que demonstra todas as funcionalidades do ", 
+                    .addStyledText("Este é um exemplo completo que demonstra todas as funcionalidades do ",
                             TextStyle.builder()
-                                .withFont(defaultFont)
-                                .withFontSize(12f)
-                                .withColor(Color.BLACK)
-                                .build())
+                                    .withFont(defaultFont)
+                                    .withFontSize(12f)
+                                    .withColor(Color.BLACK)
+                                    .build())
                     .addStyledText("PDF Builder", boldStyle)
-                    .addStyledText(". Abaixo você verá exemplos de cabeçalhos, rodapés, listas, tabelas e imagens.", 
+                    .addStyledText(". Abaixo você verá exemplos de cabeçalhos, rodapés, listas, tabelas e imagens.",
                             TextStyle.builder()
-                                .withFont(defaultFont)
-                                .withFontSize(12f)
-                                .withColor(Color.BLACK)
-                                .build())
+                                    .withFont(defaultFont)
+                                    .withFontSize(12f)
+                                    .withColor(Color.BLACK)
+                                    .build())
                     .build());
 
             builder.moveDown(20);
@@ -141,13 +145,13 @@ public class CompleteExample {
 
             // Cria uma lista com itens estilizados
             java.util.List<ListItem> items = new ArrayList<>();
-            
+
             ListItem item1 = new ListItem("Recursos do PDF Builder:", defaultFont, 12, Color.BLACK);
             item1.addSubItem(new ListItem("Cabeçalhos e Rodapés personalizados", defaultFont, 12, Color.BLACK));
             item1.addSubItem(new ListItem("Numeração automática de páginas", defaultFont, 12, Color.BLACK));
             item1.addSubItem(new ListItem("Suporte a imagens com legendas", defaultFont, 12, Color.BLACK));
             items.add(item1);
-            
+
             ListItem item2 = new ListItem("Formatação de Texto:", defaultFont, 12, Color.BLACK);
             item2.addSubItem(new ListItem("Diferentes estilos e cores", defaultFont, 12, Color.BLACK));
             item2.addSubItem(new ListItem("Alinhamento personalizado", defaultFont, 12, Color.BLACK));

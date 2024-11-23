@@ -2,7 +2,8 @@ package io.github.joabsonlg.pdfbuilder.components.text;
 
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
-import java.awt.Color;
+
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * Componente para renderização de texto simples.
  */
-public class SimpleText {
+public final class SimpleText {
     private final String text;
     private final PDFont font;
     private final float fontSize;
@@ -27,10 +28,11 @@ public class SimpleText {
 
     /**
      * Renderiza o texto no PDPageContentStream respeitando a largura máxima.
+     *
      * @param contentStream Stream de conteúdo do PDF
-     * @param x Posição X inicial
-     * @param y Posição Y inicial
-     * @param maxWidth Largura máxima disponível
+     * @param x             Posição X inicial
+     * @param y             Posição Y inicial
+     * @param maxWidth      Largura máxima disponível
      * @return Posição Y final após renderizar todo o texto
      * @throws IOException se houver erro ao renderizar
      */
@@ -56,6 +58,7 @@ public class SimpleText {
 
     /**
      * Quebra o texto em linhas respeitando a largura máxima.
+     *
      * @param maxWidth Largura máxima disponível
      * @return Lista de linhas
      * @throws IOException se houver erro no cálculo
@@ -66,12 +69,12 @@ public class SimpleText {
         StringBuilder currentLine = new StringBuilder();
 
         for (String word : words) {
-            String testLine = currentLine.length() > 0 
-                ? currentLine + " " + word 
-                : word;
-            
+            String testLine = currentLine.length() > 0
+                    ? currentLine + " " + word
+                    : word;
+
             float lineWidth = getStringWidth(testLine);
-            
+
             if (lineWidth <= maxWidth) {
                 currentLine = new StringBuilder(testLine);
             } else {
@@ -101,6 +104,7 @@ public class SimpleText {
 
     /**
      * Calcula a altura da linha incluindo o espaçamento.
+     *
      * @return Altura em pontos
      */
     public float getHeight() {

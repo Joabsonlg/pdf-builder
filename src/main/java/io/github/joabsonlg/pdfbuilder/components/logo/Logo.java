@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * Componente para renderizar o logo do documento.
  */
-public class Logo {
+public final class Logo {
     private final String title;
     private final LogoStyle style;
     private final PDImageXObject leftImage;
@@ -48,11 +48,11 @@ public class Logo {
         if (leftImage != null) {
             float imageX = marginLeft + style.getImageMargin();
             float imageY = y - style.getImageHeight() + (style.getFontSize() / 2);
-            
+
             // Calcula as dimensões da imagem mantendo a proporção se necessário
             float imageWidth = style.getImageWidth();
             float imageHeight = style.getImageHeight();
-            
+
             if (style.isMaintainAspectRatio()) {
                 float aspectRatio = (float) leftImage.getHeight() / leftImage.getWidth();
                 if (imageWidth > 0) {
@@ -61,7 +61,7 @@ public class Logo {
                     imageWidth = imageHeight / aspectRatio;
                 }
             }
-            
+
             contentStream.drawImage(leftImage, imageX, imageY, imageWidth, imageHeight);
         }
 
@@ -76,11 +76,11 @@ public class Logo {
         if (rightImage != null) {
             float imageX = pageWidth - marginRight - style.getImageWidth() - style.getImageMargin();
             float imageY = y - style.getImageHeight() + (style.getFontSize() / 2);
-            
+
             // Calcula as dimensões da imagem mantendo a proporção se necessário
             float imageWidth = style.getImageWidth();
             float imageHeight = style.getImageHeight();
-            
+
             if (style.isMaintainAspectRatio()) {
                 float aspectRatio = (float) rightImage.getHeight() / rightImage.getWidth();
                 if (imageWidth > 0) {
@@ -89,7 +89,7 @@ public class Logo {
                     imageWidth = imageHeight / aspectRatio;
                 }
             }
-            
+
             contentStream.drawImage(rightImage, imageX, imageY, imageWidth, imageHeight);
         }
 
@@ -115,7 +115,7 @@ public class Logo {
         return new Builder();
     }
 
-    public static class Builder {
+    public static final class Builder {
         private String title;
         private LogoStyle style;
         private PDImageXObject leftImage;

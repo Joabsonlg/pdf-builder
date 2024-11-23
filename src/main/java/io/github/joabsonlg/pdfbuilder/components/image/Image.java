@@ -16,7 +16,7 @@ import java.awt.Dimension;
  * Componente para renderização de imagens em documentos PDF.
  * Suporta redimensionamento, rotação e diferentes formatos de imagem.
  */
-public class Image {
+public final class Image {
     public enum Alignment {
         LEFT, CENTER, RIGHT
     }
@@ -46,15 +46,11 @@ public class Image {
      */
     public float render(PDPageContentStream contentStream, float x, float y, float availableWidth, float imageWidth) throws IOException {
         // Calcula a posição X baseada no alinhamento
-        float xPos = x;
-        switch (alignment) {
-            case CENTER:
-                xPos = x + (availableWidth - imageWidth) / 2;
-                break;
-            case RIGHT:
-                xPos = x + (availableWidth - imageWidth);
-                break;
-        }
+        float xPos = switch (alignment) {
+            case CENTER -> x + (availableWidth - imageWidth) / 2;
+            case RIGHT -> x + (availableWidth - imageWidth);
+            default -> x;
+        };
 
         float imageHeight = (imageWidth / width) * height;
 
@@ -83,10 +79,10 @@ public class Image {
             PDFont font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
             contentStream.beginText();
             contentStream.setFont(font, captionFontSize);
-            
+
             float captionWidth = font.getStringWidth(caption) / 1000 * captionFontSize;
             float captionX;
-            
+
             // Alinha a legenda com a imagem
             switch (alignment) {
                 case CENTER:
@@ -99,11 +95,11 @@ public class Image {
                     captionX = xPos;
                     break;
             }
-            
+
             contentStream.newLineAtOffset(captionX, newY - captionFontSize - 5);
             contentStream.showText(caption);
             contentStream.endText();
-            
+
             newY -= (captionFontSize + 10); // Espaço extra após a legenda
         }
 
@@ -125,7 +121,7 @@ public class Image {
         return new Builder(document, new File(imagePath));
     }
 
-    public static class Builder {
+    public static final class Builder {
         private PDImageXObject image;
         private float width;
         private float height;

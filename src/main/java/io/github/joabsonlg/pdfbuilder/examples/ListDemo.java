@@ -20,7 +20,12 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ListDemo {
+public final class ListDemo {
+
+    private ListDemo() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     public static void main(String[] args) {
         try {
             // Configuração da área segura com header e footer
@@ -74,21 +79,21 @@ public class ListDemo {
 
             // Cria uma lista não ordenada com subitens
             java.util.List<ListItem> items = new ArrayList<>();
-            
+
             // Item 1 com subitens
             ListItem item1 = new ListItem("Frutas", defaultFont, 12, Color.BLACK);
             item1.addSubItem(new ListItem("Maçã", defaultFont, 12, Color.BLACK));
             item1.addSubItem(new ListItem("Banana", defaultFont, 12, Color.BLACK));
             item1.addSubItem(new ListItem("Laranja", defaultFont, 12, Color.BLACK));
             items.add(item1);
-            
+
             // Item 2 com subitens
             ListItem item2 = new ListItem("Vegetais", defaultFont, 12, Color.BLACK);
             item2.addSubItem(new ListItem("Cenoura", defaultFont, 12, Color.BLACK));
             item2.addSubItem(new ListItem("Brócolis", defaultFont, 12, Color.BLACK));
             item2.addSubItem(new ListItem("Alface", defaultFont, 12, Color.BLACK));
             items.add(item2);
-            
+
             // Item 3 sem subitens
             items.add(new ListItem("Grãos", defaultFont, 12, Color.BLACK));
 
@@ -119,62 +124,62 @@ public class ListDemo {
 
             // Cria uma lista ordenada com subitens
             java.util.List<ListItem> orderedItems = new ArrayList<>();
-            
+
             // Item 1 com subitens numerados
             ListItem step1 = new ListItem("Preparar a massa", defaultFont, 12, new Color(44, 62, 80));
             step1.setNumber("1.");
-            
-            ListItem step1_1 = new ListItem("Misturar farinha e sal", defaultFont, 12, new Color(44, 62, 80));
-            step1_1.setNumber("1.1.");
-            
-            ListItem step1_2 = new ListItem("Adicionar água aos poucos", defaultFont, 12, new Color(44, 62, 80));
-            step1_2.setNumber("1.2.");
-            
+
+            ListItem step1s1 = new ListItem("Misturar farinha e sal", defaultFont, 12, new Color(44, 62, 80));
+            step1s1.setNumber("1.1.");
+
+            ListItem step1s2 = new ListItem("Adicionar água aos poucos", defaultFont, 12, new Color(44, 62, 80));
+            step1s2.setNumber("1.2.");
+
             // Item com texto estilizado
             String text = "O entusiasmo é a maior força da ";
             String highlightedWord = "alma";
             String remainingText = ". Conserva-o e nunca te faltará poder para conseguires o que desejas.";
-            
+
             java.util.List<StyledText> styledTexts = Arrays.asList(
                 new StyledText(text, normalStyle),
                 new StyledText(highlightedWord, boldStyle),
                 new StyledText(remainingText, normalStyle)
             );
-            
-            ListItem step1_3 = new ListItem(styledTexts);
-            step1_3.setNumber("1.3.");
-            
-            step1.addSubItem(step1_1);
-            step1.addSubItem(step1_2);
-            step1.addSubItem(step1_3);
+
+            ListItem step1s3 = new ListItem(styledTexts);
+            step1s3.setNumber("1.3.");
+
+            step1.addSubItem(step1s1);
+            step1.addSubItem(step1s2);
+            step1.addSubItem(step1s3);
             orderedItems.add(step1);
-            
+
             // Item 2 com subitens numerados
             ListItem step2 = new ListItem("Preparar o recheio", defaultFont, 12, new Color(44, 62, 80));
             step2.setNumber("2.");
-            
-            ListItem step2_1 = new ListItem("Cortar os ingredientes", defaultFont, 12, new Color(44, 62, 80));
-            step2_1.setNumber("2.1.");
-            
-            ListItem step2_2 = new ListItem("Temperar a gosto", defaultFont, 12, new Color(44, 62, 80));
-            step2_2.setNumber("2.2.");
-            
-            step2.addSubItem(step2_1);
-            step2.addSubItem(step2_2);
+
+            ListItem step2s1 = new ListItem("Cortar os ingredientes", defaultFont, 12, new Color(44, 62, 80));
+            step2s1.setNumber("2.1.");
+
+            ListItem step2s2 = new ListItem("Temperar a gosto", defaultFont, 12, new Color(44, 62, 80));
+            step2s2.setNumber("2.2.");
+
+            step2.addSubItem(step2s1);
+            step2.addSubItem(step2s2);
             orderedItems.add(step2);
-            
+
             // Item 3 com subitens numerados
             ListItem step3 = new ListItem("Finalizar", defaultFont, 12, new Color(44, 62, 80));
             step3.setNumber("3.");
-            
-            ListItem step3_1 = new ListItem("Montar a receita", defaultFont, 12, new Color(44, 62, 80));
-            step3_1.setNumber("3.1.");
-            
-            ListItem step3_2 = new ListItem("Levar ao forno", defaultFont, 12, new Color(44, 62, 80));
-            step3_2.setNumber("3.2.");
-            
-            step3.addSubItem(step3_1);
-            step3.addSubItem(step3_2);
+
+            ListItem step3s1 = new ListItem("Montar a receita", defaultFont, 12, new Color(44, 62, 80));
+            step3s1.setNumber("3.1.");
+
+            ListItem step3s2 = new ListItem("Levar ao forno", defaultFont, 12, new Color(44, 62, 80));
+            step3s2.setNumber("3.2.");
+
+            step3.addSubItem(step3s1);
+            step3.addSubItem(step3s2);
             orderedItems.add(step3);
 
             List orderedList = List.builder()

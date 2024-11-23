@@ -11,8 +11,8 @@ import java.awt.Color;
 /**
  * Configurações de estilo para o logo do documento.
  */
-public class LogoStyle {
-    private static final Logger logger = LoggerFactory.getLogger(LogoStyle.class);
+public final class LogoStyle {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogoStyle.class);
 
     private final PDFont font;
     private final float fontSize;
@@ -108,7 +108,7 @@ public class LogoStyle {
             try {
                 this.font = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
             } catch (Exception e) {
-                logger.error("Erro ao criar fonte padrão", e);
+                LOGGER.error("Erro ao criar fonte padrão", e);
                 throw new RuntimeException("Erro ao criar fonte padrão", e);
             }
         }

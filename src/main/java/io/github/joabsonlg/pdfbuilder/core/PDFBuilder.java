@@ -19,7 +19,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.io.IOException;
 
 /**
@@ -27,7 +27,7 @@ import java.io.IOException;
  * Fornece uma API fluente para criação e manipulação de PDFs.
  */
 public class PDFBuilder {
-    private static final Logger logger = LoggerFactory.getLogger(PDFBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PDFBuilder.class);
     private static final float DEFAULT_FONT_SIZE = 12.0f;
 
     private final PDDocument document;
@@ -45,6 +45,7 @@ public class PDFBuilder {
 
     /**
      * Cria uma nova instância do PDFBuilder com a configuração fornecida.
+     *
      * @param config Configuração do PDF
      */
     public PDFBuilder(PDFConfiguration config) {
@@ -55,16 +56,16 @@ public class PDFBuilder {
         this.lineSpacing = 1.5f;
         this.currentFontSize = DEFAULT_FONT_SIZE;
         this.resourceManager = new ResourceManager(document);
-        
+
         try {
             this.contentStream = new PDPageContentStream(document, currentPage);
             // Inicializa a posição atual no topo da página
             this.currentPosition = Coordinates.origin(config.getPageSize(), config.getSafeArea())
-                .moveTo(
-                    config.getSafeArea().getMarginLeft(),
-                    config.getPageSize().getHeight() - config.getSafeArea().getMarginTop()
-                );
-            
+                    .moveTo(
+                            config.getSafeArea().getMarginLeft(),
+                            config.getPageSize().getHeight() - config.getSafeArea().getMarginTop()
+                    );
+
             // Adiciona o logo na primeira página se existir
             if (logo != null) {
                 addLogo();
@@ -76,6 +77,7 @@ public class PDFBuilder {
 
     /**
      * Cria uma nova instância do PDFBuilder com configuração padrão.
+     *
      * @return Nova instância do PDFBuilder
      */
     public static PDFBuilder create() {
@@ -84,6 +86,7 @@ public class PDFBuilder {
 
     /**
      * Cria uma nova instância do PDFBuilder com configuração personalizada.
+     *
      * @param config Configuração personalizada
      * @return Nova instância do PDFBuilder
      */
@@ -96,12 +99,13 @@ public class PDFBuilder {
 
     /**
      * Adiciona uma nova página ao documento.
+     *
      * @return this para chamadas encadeadas
      */
     public PDFBuilder addNewPage() {
         try {
             addNewPageInternal();
-            logger.debug("Nova página adicionada ao documento");
+            LOGGER.debug("Nova página adicionada ao documento");
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar nova página", e);
@@ -126,14 +130,14 @@ public class PDFBuilder {
 
         // Cria novo content stream
         contentStream = new PDPageContentStream(document, currentPage);
-        
+
         // Reseta a posição para o topo da nova página
         currentPosition = Coordinates.origin(config.getPageSize(), config.getSafeArea())
-            .moveTo(
-                config.getSafeArea().getMarginLeft(),
-                config.getPageSize().getHeight() - config.getSafeArea().getMarginTop()
-            );
-        
+                .moveTo(
+                        config.getSafeArea().getMarginLeft(),
+                        config.getPageSize().getHeight() - config.getSafeArea().getMarginTop()
+                );
+
         // Adiciona logo à nova página
         if (logo != null) {
             addLogo();
@@ -142,6 +146,7 @@ public class PDFBuilder {
 
     /**
      * Move para uma posição específica na página.
+     *
      * @param x Coordenada X
      * @param y Coordenada Y
      * @return this para chamadas encadeadas
@@ -153,6 +158,7 @@ public class PDFBuilder {
 
     /**
      * Move relativamente à posição atual.
+     *
      * @param deltaX Deslocamento em X
      * @param deltaY Deslocamento em Y
      * @return this para chamadas encadeadas
@@ -164,6 +170,7 @@ public class PDFBuilder {
 
     /**
      * Move para uma posição relativa à área de conteúdo.
+     *
      * @param percentX Porcentagem da largura (0-100)
      * @param percentY Porcentagem da altura (0-100)
      * @return this para chamadas encadeadas
@@ -175,6 +182,7 @@ public class PDFBuilder {
 
     /**
      * Move para uma posição na área do cabeçalho.
+     *
      * @param percentX Porcentagem da largura (0-100)
      * @param percentY Porcentagem da altura do cabeçalho (0-100)
      * @return this para chamadas encadeadas
@@ -186,6 +194,7 @@ public class PDFBuilder {
 
     /**
      * Move para uma posição na área do rodapé.
+     *
      * @param percentX Porcentagem da largura (0-100)
      * @param percentY Porcentagem da altura do rodapé (0-100)
      * @return this para chamadas encadeadas
@@ -197,6 +206,7 @@ public class PDFBuilder {
 
     /**
      * Move para o topo da área de conteúdo.
+     *
      * @return this para chamadas encadeadas
      */
     public PDFBuilder moveToTop() {
@@ -208,6 +218,7 @@ public class PDFBuilder {
 
     /**
      * Move para o início da linha atual.
+     *
      * @return this para chamadas encadeadas
      */
     public PDFBuilder moveToStart() {
@@ -219,6 +230,7 @@ public class PDFBuilder {
 
     /**
      * Move para o final da área de conteúdo.
+     *
      * @return this para chamadas encadeadas
      */
     public PDFBuilder moveToBottom() {
@@ -230,6 +242,7 @@ public class PDFBuilder {
 
     /**
      * Move para a direita a partir da posição atual.
+     *
      * @param distance Distância a mover em pontos
      * @return this para chamadas encadeadas
      */
@@ -240,6 +253,7 @@ public class PDFBuilder {
 
     /**
      * Move para baixo a partir da posição atual.
+     *
      * @param distance Distância a mover em pontos
      * @return this para chamadas encadeadas
      */
@@ -250,6 +264,7 @@ public class PDFBuilder {
 
     /**
      * Adiciona texto na posição atual.
+     *
      * @param text Texto a ser adicionado
      * @return this para chamadas encadeadas
      */
@@ -262,7 +277,7 @@ public class PDFBuilder {
             contentStream.showText(text);
             contentStream.endText();
 
-            logger.debug("Texto adicionado: {}", text);
+            LOGGER.debug("Texto adicionado: {}", text);
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar texto", e);
@@ -271,6 +286,7 @@ public class PDFBuilder {
 
     /**
      * Adiciona uma linha de texto e move para a próxima linha.
+     *
      * @param text Texto a ser adicionado
      * @return this para chamadas encadeadas
      */
@@ -288,7 +304,7 @@ public class PDFBuilder {
             moveDown(lineHeight);
             moveToStart();
 
-            logger.debug("Linha de texto adicionada: {}", text);
+            LOGGER.debug("Linha de texto adicionada: {}", text);
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar linha de texto", e);
@@ -297,6 +313,7 @@ public class PDFBuilder {
 
     /**
      * Adiciona um componente de texto simples.
+     *
      * @param simpleText Componente de texto
      * @return this para chamadas encadeadas
      */
@@ -306,7 +323,7 @@ public class PDFBuilder {
             float safeWidth = contentArea.getWidth();
             float newY = simpleText.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
-            logger.debug("SimpleText adicionado com quebra de linha automática");
+            LOGGER.debug("SimpleText adicionado com quebra de linha automática");
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar SimpleText", e);
@@ -315,6 +332,7 @@ public class PDFBuilder {
 
     /**
      * Adiciona um parágrafo com alinhamento.
+     *
      * @param paragraph Componente de parágrafo
      * @return this para chamadas encadeadas
      */
@@ -324,7 +342,7 @@ public class PDFBuilder {
             float safeWidth = contentArea.getWidth();
             float newY = paragraph.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
-            logger.debug("Parágrafo adicionado com alinhamento");
+            LOGGER.debug("Parágrafo adicionado com alinhamento");
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar parágrafo", e);
@@ -333,6 +351,7 @@ public class PDFBuilder {
 
     /**
      * Adiciona um título ao documento.
+     *
      * @param heading Componente de título
      * @return this para chamadas encadeadas
      */
@@ -342,7 +361,7 @@ public class PDFBuilder {
             float safeWidth = contentArea.getWidth();
             float newY = heading.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
-            logger.debug("Título adicionado ao documento");
+            LOGGER.debug("Título adicionado ao documento");
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar título", e);
@@ -351,42 +370,44 @@ public class PDFBuilder {
 
     /**
      * Verifica se é necessário criar uma nova página baseado na altura necessária.
+     *
      * @param heightNeeded Altura necessária para o próximo elemento
      */
     private void checkNewPage(float heightNeeded) throws IOException {
         PDRectangle contentArea = config.getSafeArea().getContentArea(config.getPageSize());
         float bottomLimit = contentArea.getLowerLeftY();
-        
+
         if (currentPosition.getY() - heightNeeded < bottomLimit) {
             // Fecha o content stream atual
             if (contentStream != null) {
                 addFooter();
                 contentStream.close();
             }
-            
+
             // Cria nova página
             PDPage newPage = new PDPage(config.getPageSize());
             document.addPage(newPage);
-            
+
             // Cria novo content stream
             contentStream = new PDPageContentStream(document, newPage);
-            
+
             // Reseta a posição para o topo da nova página usando Coordinates.origin
             currentPosition = Coordinates.origin(config.getPageSize(), config.getSafeArea())
-                .moveTo(
-                    contentArea.getLowerLeftX(),
-                    contentArea.getUpperRightY()
-                );
-            
+                    .moveTo(
+                            contentArea.getLowerLeftX(),
+                            contentArea.getUpperRightY()
+                    );
+
             // Adiciona cabeçalho à nova página
             addHeader();
-            
-            logger.debug("Nova página criada");
+
+            LOGGER.debug("Nova página criada");
         }
     }
 
     /**
      * Adiciona uma imagem ao documento.
+     *
      * @param image Componente de imagem
      * @return this para chamadas encadeadas
      */
@@ -398,18 +419,18 @@ public class PDFBuilder {
             float aspectRatio = dimensions.height / (float) dimensions.width;
             float imageWidth = Math.min(safeWidth, dimensions.width);
             float imageHeight = imageWidth * aspectRatio;
-            
+
             // Verifica se precisa de nova página
             checkNewPage(imageHeight);
-            
+
             // Renderiza a imagem e atualiza a posição Y
             float newY = image.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth, imageWidth);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
-            
+
             // Adiciona espaço após a imagem
             moveDown(20); // 20 pontos de espaço após cada imagem
-            
-            logger.debug("Imagem adicionada com dimensões: {}x{}", imageWidth, imageHeight);
+
+            LOGGER.debug("Imagem adicionada com dimensões: {}x{}", imageWidth, imageHeight);
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar imagem", e);
@@ -418,6 +439,7 @@ public class PDFBuilder {
 
     /**
      * Adiciona uma tabela ao documento.
+     *
      * @param table Componente de tabela
      * @return this para chamadas encadeadas
      */
@@ -427,11 +449,11 @@ public class PDFBuilder {
             float safeWidth = contentArea.getWidth();
             float newY = table.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
-            
+
             // Adiciona espaço após a tabela
             moveDown(20); // 20 pontos de espaço após a tabela
-            
-            logger.debug("Tabela adicionada ao documento");
+
+            LOGGER.debug("Tabela adicionada ao documento");
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar tabela", e);
@@ -440,6 +462,7 @@ public class PDFBuilder {
 
     /**
      * Adiciona uma lista ao documento.
+     *
      * @param list Componente de lista
      * @return this para chamadas encadeadas
      */
@@ -449,11 +472,11 @@ public class PDFBuilder {
             float safeWidth = contentArea.getWidth();
             float newY = list.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
-            
+
             // Adiciona espaço após a lista
             moveDown(20); // 20 pontos de espaço após a lista
-            
-            logger.debug("Lista adicionada ao documento");
+
+            LOGGER.debug("Lista adicionada ao documento");
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar lista", e);
@@ -462,6 +485,7 @@ public class PDFBuilder {
 
     /**
      * Define o tamanho da fonte.
+     *
      * @param fontSize Tamanho da fonte em pontos
      * @return this para chamadas encadeadas
      */
@@ -475,6 +499,7 @@ public class PDFBuilder {
 
     /**
      * Define o espaçamento entre linhas.
+     *
      * @param spacing Fator de espaçamento (1.0 = espaçamento simples)
      * @return this para chamadas encadeadas
      */
@@ -488,6 +513,7 @@ public class PDFBuilder {
 
     /**
      * Atualiza a configuração do builder.
+     *
      * @param config Nova configuração
      * @return this para chamadas encadeadas
      */
@@ -500,6 +526,7 @@ public class PDFBuilder {
 
     /**
      * Atualiza o tamanho da página.
+     *
      * @param pageSize Novo tamanho de página
      * @return this para chamadas encadeadas
      */
@@ -513,6 +540,7 @@ public class PDFBuilder {
 
     /**
      * Define a numeração de páginas.
+     *
      * @param pageNumbering Configuração de numeração de páginas
      * @return this para chamadas encadeadas
      */
@@ -523,6 +551,7 @@ public class PDFBuilder {
 
     /**
      * Define o cabeçalho do documento.
+     *
      * @param header Configuração do cabeçalho
      * @return this para chamadas encadeadas
      */
@@ -541,6 +570,7 @@ public class PDFBuilder {
 
     /**
      * Define o rodapé do documento.
+     *
      * @param footer Configuração do rodapé
      * @return this para chamadas encadeadas
      */
@@ -551,13 +581,14 @@ public class PDFBuilder {
 
     /**
      * Define o logo do documento usando apenas um título.
+     *
      * @param title Título do logo
      * @return this para chamadas encadeadas
      */
     public PDFBuilder setLogo(String title) {
         this.logo = Logo.builder()
-            .withTitle(title)
-            .build();
+                .withTitle(title)
+                .build();
         try {
             addLogo();
         } catch (IOException e) {
@@ -568,15 +599,16 @@ public class PDFBuilder {
 
     /**
      * Define o logo do documento com título e estilo personalizado.
+     *
      * @param title Título do logo
      * @param style Estilo do logo
      * @return this para chamadas encadeadas
      */
     public PDFBuilder setLogo(String title, LogoStyle style) {
         this.logo = Logo.builder()
-            .withTitle(title)
-            .withStyle(style)
-            .build();
+                .withTitle(title)
+                .withStyle(style)
+                .build();
         try {
             addLogo();
         } catch (IOException e) {
@@ -587,9 +619,10 @@ public class PDFBuilder {
 
     /**
      * Define o logo do documento com imagens nas laterais.
-     * @param title Título do logo
-     * @param style Estilo do logo
-     * @param leftImagePath Caminho da imagem da esquerda
+     *
+     * @param title          Título do logo
+     * @param style          Estilo do logo
+     * @param leftImagePath  Caminho da imagem da esquerda
      * @param rightImagePath Caminho da imagem da direita
      * @return this para chamadas encadeadas
      */
@@ -605,19 +638,19 @@ public class PDFBuilder {
         }
 
         this.logo = Logo.builder()
-            .withTitle(title)
-            .withStyle(style)
-            .withLeftImage(leftImage)
-            .withRightImage(rightImage)
-            .build();
+                .withTitle(title)
+                .withStyle(style)
+                .withLeftImage(leftImage)
+                .withRightImage(rightImage)
+                .build();
 
         try {
             // Reseta a posição e adiciona o logo
             currentPosition = Coordinates.origin(config.getPageSize(), config.getSafeArea())
-                .moveTo(
-                    config.getSafeArea().getMarginLeft(),
-                    config.getPageSize().getHeight() - config.getSafeArea().getMarginTop()
-                );
+                    .moveTo(
+                            config.getSafeArea().getMarginLeft(),
+                            config.getPageSize().getHeight() - config.getSafeArea().getMarginTop()
+                    );
             addLogo();
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar logo", e);
@@ -644,13 +677,13 @@ public class PDFBuilder {
             float footerY = config.getSafeArea().getMarginBottom();
             footer.render(contentStream, config.getPageSize().getWidth(), footerY,
                     config.getSafeArea().getMarginLeft(), config.getSafeArea().getMarginRight());
-            
+
             // Adiciona numeração de página se configurada
             if (pageNumbering != null) {
                 int pageNumber = document.getPages().indexOf(currentPage) + 1;
                 int totalPages = document.getNumberOfPages();
-                pageNumbering.render(contentStream, config.getPageSize().getWidth(), 
-                    config.getPageSize().getHeight(), pageNumber, totalPages);
+                pageNumbering.render(contentStream, config.getPageSize().getWidth(),
+                        config.getPageSize().getHeight(), pageNumber, totalPages);
             }
         }
     }
@@ -661,11 +694,11 @@ public class PDFBuilder {
     private void addLogo() throws IOException {
         if (logo != null) {
             float y = currentPosition.getY();
-            
+
             // Renderiza o logo
             logo.render(contentStream, config.getPageSize().getWidth(), y,
                     config.getSafeArea().getMarginLeft(), config.getSafeArea().getMarginRight());
-            
+
             // Atualiza a posição atual para logo abaixo do logo
             float logoHeight = logo.getTotalHeight();
             currentPosition = currentPosition.moveBy(0, -logoHeight);
@@ -674,6 +707,7 @@ public class PDFBuilder {
 
     /**
      * Salva o documento no caminho especificado.
+     *
      * @param path Caminho para salvar o documento
      */
     public void save(String path) {
@@ -685,7 +719,7 @@ public class PDFBuilder {
                 contentStream = null;
             }
             document.save(path);
-            logger.debug("Documento salvo em: {}", path);
+            LOGGER.debug("Documento salvo em: {}", path);
         } catch (IOException e) {
             throw new RuntimeException("Erro ao salvar documento", e);
         }
@@ -702,7 +736,7 @@ public class PDFBuilder {
                 contentStream = null;
             }
             document.close();
-            logger.debug("Builder fechado e recursos liberados");
+            LOGGER.debug("Builder fechado e recursos liberados");
         } catch (IOException e) {
             throw new RuntimeException("Erro ao fechar recursos", e);
         }
@@ -710,6 +744,7 @@ public class PDFBuilder {
 
     /**
      * Retorna o gerenciador de recursos do documento.
+     *
      * @return Gerenciador de recursos
      */
     public ResourceManager getResourceManager() {
@@ -717,8 +752,19 @@ public class PDFBuilder {
     }
 
     // Getters
-    public PDDocument getDocument() { return document; }
-    public PDFConfiguration getConfig() { return config; }
-    public PDPage getCurrentPage() { return currentPage; }
-    public Coordinates getCurrentPosition() { return currentPosition; }
+    public PDDocument getDocument() {
+        return document;
+    }
+
+    public PDFConfiguration getConfig() {
+        return config;
+    }
+
+    public PDPage getCurrentPage() {
+        return currentPage;
+    }
+
+    public Coordinates getCurrentPosition() {
+        return currentPosition;
+    }
 }

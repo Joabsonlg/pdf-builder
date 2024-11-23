@@ -5,7 +5,7 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  * Componente para renderização de tabelas em documentos PDF.
  * Suporta células com texto simples, alinhamento e cores de fundo.
  */
-public class Table {
+public final class Table {
     private final List<List<String>> data;
     private final float[] columnWidths;
     private final float rowHeight;
@@ -90,15 +90,15 @@ public class Table {
         // Primeiro, calcula a altura necessária para a linha
         float maxTextHeight = 0;
         List<List<String>> wrappedTexts = new ArrayList<>();
-        
+
         for (int i = 0; i < row.size() && i < columnWidths.length; i++) {
             String cellText = row.get(i);
             float columnWidth = columnWidths[i];
             float maxWidth = columnWidth - 10; // 5 pixels de padding de cada lado
-            
+
             List<String> lines = wrapText(cellText, font, fontSize, maxWidth);
             wrappedTexts.add(lines);
-            
+
             float textHeight = lines.size() * fontSize;
             maxTextHeight = Math.max(maxTextHeight, textHeight);
         }
@@ -127,14 +127,14 @@ public class Table {
 
             // Calcula a altura total do texto
             float textHeight = lines.size() * fontSize;
-            
+
             // Calcula a posição Y inicial para centralizar verticalmente todas as linhas
             float startY = y - actualRowHeight + (actualRowHeight - textHeight) / 2;
 
             // Desenha cada linha do texto
             for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
                 String line = lines.get(lineIndex);
-                
+
                 // Calcula a posição X para centralizar a linha horizontalmente
                 float textWidth = font.getStringWidth(line) / 1000 * fontSize;
                 float textX = currentX + (columnWidth - textWidth) / 2;
@@ -215,7 +215,7 @@ public class Table {
         return new Builder();
     }
 
-    public static class Builder {
+    public static final class Builder {
         private List<List<String>> data = new ArrayList<>();
         private float[] columnWidths = new float[0];
         private float rowHeight = 20f;

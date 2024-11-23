@@ -1,17 +1,20 @@
 package io.github.joabsonlg.pdfbuilder.components.page;
 
-import io.github.joabsonlg.pdfbuilder.components.text.TextAlignment;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
-import java.awt.Color;
+import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 /**
  * Estilos predefinidos para cabeçalhos e rodapés.
  */
-public class PageSectionStyle {
+public final class PageSectionStyle {
+
+    private PageSectionStyle() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
     /**
      * Estilo minimalista com linha separadora fina.

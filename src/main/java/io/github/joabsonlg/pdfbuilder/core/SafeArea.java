@@ -5,10 +5,10 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 /**
  * Define a área segura para renderização de conteúdo no PDF.
  */
-public class SafeArea {
+public final class SafeArea {
     private static final float HEADER_HEIGHT = 40f;
     private static final float FOOTER_HEIGHT = 40f;
-    
+
     private final float originalMarginLeft;
     private final float originalMarginRight;
     private final float originalMarginTop;
@@ -35,6 +35,7 @@ public class SafeArea {
 
     /**
      * Retorna a área de conteúdo segura considerando as margens e áreas de cabeçalho/rodapé.
+     *
      * @param pageSize Tamanho da página
      * @return Retângulo representando a área segura
      */
@@ -42,20 +43,21 @@ public class SafeArea {
         if (pageSize == null) {
             throw new IllegalArgumentException("pageSize não pode ser nulo");
         }
-        
+
         float extraTopMargin = hasHeader ? HEADER_HEIGHT : 0;
         float extraBottomMargin = hasFooter ? FOOTER_HEIGHT : 0;
-        
+
         return new PDRectangle(
-            marginLeft,
-            marginBottom + extraBottomMargin,
-            pageSize.getWidth() - marginLeft - marginRight,
-            pageSize.getHeight() - marginTop - marginBottom - extraTopMargin - extraBottomMargin
+                marginLeft,
+                marginBottom + extraBottomMargin,
+                pageSize.getWidth() - marginLeft - marginRight,
+                pageSize.getHeight() - marginTop - marginBottom - extraTopMargin - extraBottomMargin
         );
     }
 
     /**
      * Retorna a área do cabeçalho.
+     *
      * @param pageSize Tamanho da página
      * @return Retângulo representando a área do cabeçalho
      * @throws IllegalStateException se o cabeçalho não estiver habilitado
@@ -67,17 +69,18 @@ public class SafeArea {
         if (!hasHeader) {
             throw new IllegalStateException("Cabeçalho não está habilitado");
         }
-        
+
         return new PDRectangle(
-            marginLeft,
-            pageSize.getHeight() - marginTop - HEADER_HEIGHT,
-            pageSize.getWidth() - marginLeft - marginRight,
-            HEADER_HEIGHT
+                marginLeft,
+                pageSize.getHeight() - marginTop - HEADER_HEIGHT,
+                pageSize.getWidth() - marginLeft - marginRight,
+                HEADER_HEIGHT
         );
     }
 
     /**
      * Retorna a área do rodapé.
+     *
      * @param pageSize Tamanho da página
      * @return Retângulo representando a área do rodapé
      * @throws IllegalStateException se o rodapé não estiver habilitado
@@ -89,28 +92,29 @@ public class SafeArea {
         if (!hasFooter) {
             throw new IllegalStateException("Rodapé não está habilitado");
         }
-        
+
         return new PDRectangle(
-            marginLeft,
-            marginBottom,
-            pageSize.getWidth() - marginLeft - marginRight,
-            FOOTER_HEIGHT
+                marginLeft,
+                marginBottom,
+                pageSize.getWidth() - marginLeft - marginRight,
+                FOOTER_HEIGHT
         );
     }
 
     /**
      * Verifica se um ponto está dentro da área segura.
-     * @param x Coordenada X do ponto
-     * @param y Coordenada Y do ponto
+     *
+     * @param x        Coordenada X do ponto
+     * @param y        Coordenada Y do ponto
      * @param pageSize Tamanho da página
      * @return true se o ponto estiver dentro da área segura
      */
     public boolean isPointInSafeArea(float x, float y, PDRectangle pageSize) {
         PDRectangle contentArea = getContentArea(pageSize);
-        return x >= contentArea.getLowerLeftX() && 
-               x <= contentArea.getUpperRightX() && 
-               y >= contentArea.getLowerLeftY() && 
-               y <= contentArea.getUpperRightY();
+        return x >= contentArea.getLowerLeftX() &&
+                x <= contentArea.getUpperRightX() &&
+                y >= contentArea.getLowerLeftY() &&
+                y <= contentArea.getUpperRightY();
     }
 
     public void reset() {
@@ -152,10 +156,21 @@ public class SafeArea {
         this.marginLeft = marginLeft;
     }
 
-    public boolean hasHeader() { return hasHeader; }
-    public boolean hasFooter() { return hasFooter; }
-    public float getHeaderHeight() { return HEADER_HEIGHT; }
-    public float getFooterHeight() { return FOOTER_HEIGHT; }
+    public boolean hasHeader() {
+        return hasHeader;
+    }
+
+    public boolean hasFooter() {
+        return hasFooter;
+    }
+
+    public float getHeaderHeight() {
+        return HEADER_HEIGHT;
+    }
+
+    public float getFooterHeight() {
+        return FOOTER_HEIGHT;
+    }
 
     public static Builder builder() {
         return new Builder();

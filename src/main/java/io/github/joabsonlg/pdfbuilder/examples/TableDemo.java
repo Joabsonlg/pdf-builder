@@ -1,19 +1,22 @@
 package io.github.joabsonlg.pdfbuilder.examples;
 
 import io.github.joabsonlg.pdfbuilder.components.table.Table;
+import io.github.joabsonlg.pdfbuilder.components.text.Heading;
+import io.github.joabsonlg.pdfbuilder.components.text.HeadingLevel;
 import io.github.joabsonlg.pdfbuilder.core.PDFBuilder;
 import io.github.joabsonlg.pdfbuilder.core.PDFConfiguration;
 import io.github.joabsonlg.pdfbuilder.core.SafeArea;
-import io.github.joabsonlg.pdfbuilder.components.text.Heading;
-import io.github.joabsonlg.pdfbuilder.components.text.HeadingLevel;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
+public final class TableDemo {
+    private TableDemo() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 
-public class TableDemo {
     public static void main(String[] args) {
         try {
             // Configuração da área segura com header e footer
@@ -84,11 +87,16 @@ public class TableDemo {
 
             // Cria os dados da tabela com muitas colunas
             List<List<String>> wideTableData = Arrays.asList(
-                    Arrays.asList("ID", "Nome", "Idade", "Cidade", "Estado", "País", "Profissão", "Departamento", "Salário", "Data de Admissão"),
-                    Arrays.asList("1", "João Silva", "25", "São Paulo", "SP", "Brasil", "Desenvolvedor", "TI", "5000", "01/01/2020"),
-                    Arrays.asList("2", "Maria Santos", "30", "Rio de Janeiro", "RJ", "Brasil", "Gerente", "RH", "7000", "15/03/2018"),
-                    Arrays.asList("3", "Pedro Costa", "28", "Belo Horizonte", "MG", "Brasil", "Analista", "Financeiro", "6000", "22/07/2019")
+                    Arrays.asList("ID", "Nome", "Idade", "Cidade", "Estado", "País", "Profissão", "Departamento",
+                            "Salário", "Data de Admissão"),
+                    Arrays.asList("1", "João Silva", "25", "São Paulo", "SP", "Brasil", "Desenvolvedor", "TI", "5000",
+                            "01/01/2020"),
+                    Arrays.asList("2", "Maria Santos", "30", "Rio de Janeiro", "RJ", "Brasil", "Gerente", "RH", "7000",
+                            "15/03/2018"),
+                    Arrays.asList("3", "Pedro Costa", "28", "Belo Horizonte", "MG", "Brasil", "Analista", "Financeiro",
+                            "6000", "22/07/2019")
             );
+
             // Cria uma tabela com muitas colunas
             Table wideTable = Table.builder()
                     .withData(wideTableData)

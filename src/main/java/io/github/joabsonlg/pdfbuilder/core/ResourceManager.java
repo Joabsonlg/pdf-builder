@@ -20,7 +20,7 @@ import java.util.Map;
  * Responsável por carregar e gerenciar fontes e imagens.
  */
 public class ResourceManager {
-    private static final Logger logger = LoggerFactory.getLogger(ResourceManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceManager.class);
 
     private final PDDocument document;
     private final Map<String, PDFont> fonts;
@@ -37,7 +37,7 @@ public class ResourceManager {
         this.images = new HashMap<>();
         this.defaultFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
         registerStandardFonts();
-        logger.debug("ResourceManager inicializado");
+        LOGGER.debug("ResourceManager inicializado");
     }
 
     /**
@@ -57,7 +57,7 @@ public class ResourceManager {
         fonts.put("Courier-Oblique", new PDType1Font(Standard14Fonts.FontName.COURIER_OBLIQUE));
         fonts.put("Courier-BoldOblique", new PDType1Font(Standard14Fonts.FontName.COURIER_BOLD_OBLIQUE));
         
-        logger.debug("Fontes padrão registradas");
+        LOGGER.debug("Fontes padrão registradas");
     }
 
     /**
@@ -71,7 +71,7 @@ public class ResourceManager {
             throw new IllegalArgumentException("Fonte não registrada: " + fontName);
         }
         this.defaultFont = font;
-        logger.debug("Fonte padrão definida para: {}", fontName);
+        LOGGER.debug("Fonte padrão definida para: {}", fontName);
     }
 
     /**
@@ -101,9 +101,9 @@ public class ResourceManager {
         try {
             PDImageXObject image = PDImageXObject.createFromFile(imagePath.toString(), document);
             images.put(name, image);
-            logger.debug("Imagem carregada: {} de {}", name, imagePath);
+            LOGGER.debug("Imagem carregada: {} de {}", name, imagePath);
         } catch (IOException e) {
-            logger.error("Erro ao carregar imagem {}: {}", imagePath, e.getMessage());
+            LOGGER.error("Erro ao carregar imagem {}: {}", imagePath, e.getMessage());
             throw e;
         }
     }
@@ -118,9 +118,9 @@ public class ResourceManager {
         try {
             PDImageXObject image = PDImageXObject.createFromByteArray(document, inputStream.readAllBytes(), name);
             images.put(name, image);
-            logger.debug("Imagem carregada: {} do InputStream", name);
+            LOGGER.debug("Imagem carregada: {} do InputStream", name);
         } catch (IOException e) {
-            logger.error("Erro ao carregar imagem do InputStream: {}", e.getMessage());
+            LOGGER.error("Erro ao carregar imagem do InputStream: {}", e.getMessage());
             throw e;
         }
     }
@@ -142,7 +142,7 @@ public class ResourceManager {
     public boolean removeImage(String name) {
         PDImageXObject removed = images.remove(name);
         if (removed != null) {
-            logger.debug("Imagem removida: {}", name);
+            LOGGER.debug("Imagem removida: {}", name);
             return true;
         }
         return false;

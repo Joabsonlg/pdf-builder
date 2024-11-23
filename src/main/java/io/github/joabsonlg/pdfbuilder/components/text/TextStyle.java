@@ -1,12 +1,13 @@
 package io.github.joabsonlg.pdfbuilder.components.text;
 
-import java.awt.Color;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+
+import java.awt.*;
 
 /**
  * Define o estilo de formatação para um trecho de texto.
  */
-public class TextStyle {
+public final class TextStyle {
     private final PDFont font;
     private final float fontSize;
     private final Color color;
@@ -23,12 +24,29 @@ public class TextStyle {
         this.underlineOffset = builder.underlineOffset;
     }
 
-    public PDFont getFont() { return font; }
-    public float getFontSize() { return fontSize; }
-    public Color getColor() { return color; }
-    public boolean isUnderline() { return underline; }
-    public float getUnderlineThickness() { return underlineThickness; }
-    public float getUnderlineOffset() { return underlineOffset; }
+    public PDFont getFont() {
+        return font;
+    }
+
+    public float getFontSize() {
+        return fontSize;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public boolean isUnderline() {
+        return underline;
+    }
+
+    public float getUnderlineThickness() {
+        return underlineThickness;
+    }
+
+    public float getUnderlineOffset() {
+        return underlineOffset;
+    }
 
     public static Builder builder() {
         return new Builder();

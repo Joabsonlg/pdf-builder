@@ -16,7 +16,12 @@ import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 import java.awt.Color;
 
-public class PageNumberingDemo {
+public final class PageNumberingDemo {
+
+    private PageNumberingDemo() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
+
     public static void main(String[] args) {
         try {
             // Configuração da área segura com header e footer
@@ -75,7 +80,8 @@ public class PageNumberingDemo {
 
                 // Adiciona texto de exemplo
                 String text = "Este é um exemplo de texto para a página " + i + ". " +
-                        "O texto é repetido várias vezes para ocupar espaço e forçar a criação de uma nova página. ".repeat(10);
+                        "O texto é repetido várias vezes para ocupar espaço e forçar a criação de uma nova página. "
+                                .repeat(10);
 
                 Paragraph paragraph = Paragraph.builder()
                         .addStyledText(text, normalStyle)
