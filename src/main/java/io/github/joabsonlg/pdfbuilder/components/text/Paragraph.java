@@ -1,8 +1,13 @@
 package io.github.joabsonlg.pdfbuilder.components.text;
 
+import io.github.joabsonlg.pdfbuilder.core.SafeArea;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +24,14 @@ public final class Paragraph {
         this.styledTexts = builder.styledTexts;
         this.alignment = builder.alignment;
         this.lineSpacing = builder.lineSpacing;
+    }
+
+    /**
+     * Calcula a altura total necessária para renderizar o parágrafo.
+     */
+    public float calculateHeight() throws IOException {
+        List<List<StyledText>> lines = breakTextIntoLines(Float.MAX_VALUE);
+        return lines.size() * getHeight();
     }
 
     /**

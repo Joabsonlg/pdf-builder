@@ -41,6 +41,23 @@ public final class Table {
         this.headerTextColor = builder.headerTextColor;
     }
 
+    public float calculateHeight() {
+        float totalHeight = 0;
+
+        if (drawHeader) {
+            totalHeight += rowHeight;
+        }
+
+        totalHeight += data.size() * rowHeight;
+
+        if (borderWidth > 0) {
+            totalHeight += (data.size() + (drawHeader ? 1 : 0)) * borderWidth;
+        }
+
+        return totalHeight;
+    }
+
+
     /**
      * Renderiza a tabela no PDPageContentStream.
      */

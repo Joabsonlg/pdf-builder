@@ -334,6 +334,10 @@ public class PDFBuilder {
         try {
             PDRectangle contentArea = config.getSafeArea().getContentArea(config.getPageSize());
             float safeWidth = contentArea.getWidth();
+            
+            // Verifica se precisa de nova página
+            checkNewPage(paragraph.calculateHeight());
+            
             float newY = paragraph.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
             LOGGER.debug("Parágrafo adicionado com alinhamento");
@@ -372,7 +376,9 @@ public class PDFBuilder {
         float bottomLimit = contentArea.getLowerLeftY();
 
         if (currentPosition.getY() - heightNeeded < bottomLimit) {
-            // Fecha o content stream atual
+            LOGGER.debug("Espaço insuficiente. Criando nova página...");
+
+            // Fecha o content stream atual e adiciona o rodapé (se configurado)
             if (contentStream != null) {
                 addFooter();
                 contentStream.close();
@@ -381,21 +387,21 @@ public class PDFBuilder {
             // Cria nova página
             PDPage newPage = new PDPage(config.getPageSize());
             document.addPage(newPage);
+            currentPage = newPage;
 
             // Cria novo content stream
-            contentStream = new PDPageContentStream(document, newPage);
+            contentStream = new PDPageContentStream(document, currentPage);
 
-            // Reseta a posição para o topo da nova página usando Coordinates.origin
+            // Reseta a posição para o topo da nova página
             currentPosition = Coordinates.origin(config.getPageSize(), config.getSafeArea())
                     .moveTo(
-                            contentArea.getLowerLeftX(),
-                            contentArea.getUpperRightY()
+                            config.getSafeArea().getMarginLeft(),
+                            config.getPageSize().getHeight() - config.getSafeArea().getMarginTop()
                     );
 
-            // Adiciona cabeçalho à nova página
+            // Adiciona o cabeçalho e logo após criar o contentStream
             addHeader();
-
-            LOGGER.debug("Nova página criada");
+            addLogo();
         }
     }
 
@@ -441,6 +447,11 @@ public class PDFBuilder {
         try {
             PDRectangle contentArea = config.getSafeArea().getContentArea(config.getPageSize());
             float safeWidth = contentArea.getWidth();
+
+            float tableHeight = table.calculateHeight();
+
+            checkNewPage(tableHeight);
+
             float newY = table.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
 
@@ -464,7 +475,7 @@ public class PDFBuilder {
         try {
             PDRectangle contentArea = config.getSafeArea().getContentArea(config.getPageSize());
             float safeWidth = contentArea.getWidth();
-            float newY = list.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
+            float newY = list.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth, this);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
 
             // Adiciona espaço após a lista

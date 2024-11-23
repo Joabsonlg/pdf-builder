@@ -2,12 +2,13 @@ package io.github.joabsonlg.pdfbuilder.components.list;
 
 import io.github.joabsonlg.pdfbuilder.components.text.StyledText;
 import io.github.joabsonlg.pdfbuilder.components.text.TextStyle;
+import io.github.joabsonlg.pdfbuilder.core.PDFBuilder;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -45,7 +46,7 @@ public final class List {
     /**
      * Renderiza a lista no PDPageContentStream.
      */
-    public float render(PDPageContentStream contentStream, float x, float y, float availableWidth) throws IOException {
+    public float render(PDPageContentStream contentStream, float x, float y, float availableWidth, PDFBuilder pdfBuilder) throws IOException {
         float currentY = y;
         float baseIndentation = indentation * level;
         float textX = x + baseIndentation + bulletSpacing;  // Ajustado para incluir bulletSpacing
@@ -54,6 +55,11 @@ public final class List {
         for (int i = 0; i < items.size(); i++) {
             ListItem item = items.get(i);
             String bullet = getBullet(i + 1, item.getNumber());
+
+            // Verifica espaço antes de renderizar o marcador (bullet)
+            if (!hasSpaceForItem(currentY, fontSize + lineSpacing, pdfBuilder)) {
+                currentY = pdfBuilder.addNewPage().getCurrentPosition().getY(); // Move para nova página
+            }
 
             // Desenha o marcador (bullet) ou número
             contentStream.beginText();
@@ -72,6 +78,11 @@ public final class List {
             // Desenha cada linha do texto
             float lineY = currentY;
             for (java.util.List<StyledText> line : lines) {
+                // Verifica espaço antes de renderizar a próxima linha
+                if (!hasSpaceForItem(lineY, fontSize + lineSpacing, pdfBuilder)) {
+                    lineY = pdfBuilder.addNewPage().getCurrentPosition().getY(); // Move para nova página
+                }
+
                 float currentX = textX;
                 for (StyledText styledText : line) {
                     TextStyle style = styledText.getStyle();
@@ -105,14 +116,24 @@ public final class List {
                         .withListItems(item.getSubItems())
                         .build();
 
-                lineY = subList.render(contentStream, x, lineY, availableWidth);
+                lineY = subList.render(contentStream, x, lineY, availableWidth, pdfBuilder);
             }
 
             // Atualiza a posição Y para o próximo item
             currentY = lineY;
+
+            // Verifica se ainda há espaço para continuar
+            if (!hasSpaceForItem(currentY, fontSize + lineSpacing, pdfBuilder)) {
+                currentY = pdfBuilder.addNewPage().getCurrentPosition().getY(); // Move para nova página
+            }
         }
 
         return currentY;
+    }
+
+    private boolean hasSpaceForItem(float currentY, float itemHeight, PDFBuilder pdfBuilder) {
+        float bottomLimit = pdfBuilder.getConfig().getSafeArea().getContentArea(pdfBuilder.getConfig().getPageSize()).getLowerLeftY();
+        return currentY - itemHeight > bottomLimit;
     }
 
     private String getBullet(int index, String number) {

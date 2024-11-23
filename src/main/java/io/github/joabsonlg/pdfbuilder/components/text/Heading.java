@@ -7,6 +7,8 @@ import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Componente para renderização de títulos e subtítulos.
@@ -65,41 +67,66 @@ public final class Heading {
      * Renderiza o título no PDPageContentStream.
      */
     public float render(PDPageContentStream contentStream, float x, float y, float maxWidth) throws IOException {
-        // Aplica o estilo
         PDFont font = style != null ? style.getFont() : new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
         float fontSize = style != null ? style.getFontSize() : level.getFontSize();
         Color color = style != null ? style.getColor() : Color.BLACK;
 
-        // Configura a fonte e cor
         contentStream.setFont(font, fontSize);
         contentStream.setNonStrokingColor(color);
 
-        // Prepara o texto completo (incluindo numeração se necessário)
         String fullText = numbered && number != null ? number + " " + text : text;
 
-        // Calcula a largura do texto
-        float textWidth = font.getStringWidth(fullText) / 1000 * fontSize;
+        java.util.List<String> lines = breakTextIntoLines(fullText, font, fontSize, maxWidth);
 
-        // Calcula a posição X baseada no alinhamento
-        float startX = x;
-        if (alignment == TextAlignment.CENTER) {
-            startX = x + (maxWidth - textWidth) / 2;
-        } else if (alignment == TextAlignment.RIGHT) {
-            startX = x + maxWidth - textWidth;
-        }
-
-        // Aplica o espaçamento antes
         y -= spacingBefore;
 
-        // Renderiza o texto
-        contentStream.beginText();
-        contentStream.newLineAtOffset(startX, y);
-        contentStream.showText(fullText);
-        contentStream.endText();
+        for (String line : lines) {
+            float textWidth = font.getStringWidth(line) / 1000 * fontSize;
 
-        // Retorna a nova posição Y
+            float startX = x;
+            if (alignment == TextAlignment.CENTER) {
+                startX = x + (maxWidth - textWidth) / 2;
+            } else if (alignment == TextAlignment.RIGHT) {
+                startX = x + maxWidth - textWidth;
+            }
+
+            contentStream.beginText();
+            contentStream.newLineAtOffset(startX, y);
+            contentStream.showText(line);
+            contentStream.endText();
+
+            y -= fontSize * 1.2f;
+        }
+
         return y - spacingAfter;
     }
+
+    private java.util.List<String> breakTextIntoLines(String text, PDFont font, float fontSize, float maxWidth) throws IOException {
+        List<String> lines = new ArrayList<>();
+        String[] words = text.split("\\s+");
+        StringBuilder currentLine = new StringBuilder();
+
+        for (String word : words) {
+            String testLine = !currentLine.isEmpty() ? currentLine + " " + word : word;
+            float textWidth = font.getStringWidth(testLine) / 1000 * fontSize;
+
+            if (textWidth > maxWidth) {
+                if (!currentLine.isEmpty()) {
+                    lines.add(currentLine.toString());
+                }
+                currentLine = new StringBuilder(word);
+            } else {
+                currentLine.append(" ").append(word);
+            }
+        }
+
+        if (!currentLine.isEmpty()) {
+            lines.add(currentLine.toString());
+        }
+
+        return lines;
+    }
+
 
     public static Builder builder() {
         return new Builder();
