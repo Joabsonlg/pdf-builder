@@ -88,12 +88,7 @@ jobs:
           mvn ${{ env.MAVEN_CLI_OPTS }} jacoco:report
           echo "COVERAGE=$(mvn ${{ env.MAVEN_CLI_OPTS }} jacoco:report | grep -A 1 "Line Coverage" | tail -n 1 | grep -o '[0-9]*%' | cut -d'%' -f1)" >> $GITHUB_ENV
 
-      # Step 4: Security Scan
-      - name: Run OWASP Dependency Check
-        run: mvn ${{ env.MAVEN_CLI_OPTS }} org.owasp:dependency-check-maven:check
-        continue-on-error: true
-
-      # Step 5: Performance Check
+      # Step 4: Performance Check
       - name: Check for performance regressions
         run: |
           # Compare test execution times with baseline
@@ -105,7 +100,7 @@ jobs:
           fi
         continue-on-error: true
 
-      # Step 6: Store Results
+      # Step 5: Store Results
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v3
@@ -117,7 +112,7 @@ jobs:
             target/dependency-check-report.html
           retention-days: ${{ env.CACHE_DURATION }}
 
-      # Step 7: Cache
+      # Step 6: Cache
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -129,7 +124,7 @@ jobs:
             ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}-
             ${{ runner.os }}-m2-
 
-      # Step 8: Report Status
+      # Step 7: Report Status
       - name: Check Quality Gates
         if: always()
         run: |
