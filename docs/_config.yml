@@ -1,22 +1,36 @@
-title: PDF Builder Documentation
+title: PDF Builder
 description: A high-level Java library for PDF generation
-theme: jekyll-theme-cayman
-markdown: kramdown
-highlighter: rouge
+remote_theme: just-the-docs/just-the-docs
 
-plugins:
-  - jekyll-seo-tag
-  - jekyll-sitemap
+url: https://joabsonlg.github.io/pdf-builder
 
-# Navigation
-nav:
-  - title: Getting Started
-    url: /getting-started
-  - title: Components
-    url: /components
-  - title: Examples
-    url: /examples
-  - title: API Reference
-    url: /api
-  - title: GitHub
+# Theme settings
+color_scheme: light
+search_enabled: true
+heading_anchors: true
+aux_links:
+  "PDF Builder on GitHub":
+    - "https://github.com/joabsonlg/pdf-builder"
+
+# External navigation links
+nav_external_links:
+  - title: PDF Builder on GitHub
     url: https://github.com/joabsonlg/pdf-builder
+    hide_icon: false
+
+# Footer content
+footer_content: "Copyright &copy; 2024 Joabson Arley. Distributed under the <a href=\"https://github.com/joabsonlg/pdf-builder/blob/main/LICENSE\">MIT license.</a>"
+
+# Collections for versioning
+version: "1.0-SNAPSHOT"
+
+# Enable copy button on code blocks
+enable_copy_code_button: true
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+
+# Google Analytics
+ga_tracking: UA-XXXXXXXX-X
+ga_tracking_anonymize_ip: true
