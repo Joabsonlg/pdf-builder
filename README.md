@@ -1,46 +1,29 @@
 # PDF Builder
 
-Uma biblioteca Java de alto nível para construção de PDFs, abstraindo toda a complexidade do Apache PDFBox.
+A high-level Java library for PDF generation that abstracts away the complexity of Apache PDFBox, providing an intuitive and developer-friendly API.
 
-## Requisitos
+[![Build Status](https://github.com/joabsonlg/pdf-builder/actions/workflows/build.yml/badge.svg)](https://github.com/joabsonlg/pdf-builder/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java Version](https://img.shields.io/badge/java-17%2B-blue)](https://adoptium.net/)
 
-- Java 17 ou superior
-- Apache PDFBox 3.0.1
+## Features
+
+- **Simple API**: Create professional PDFs with minimal code
+- **Rich Components**: Headers, paragraphs, tables, lists, images, and more
+- **Smart Layout**: Automatic page breaks and content positioning
+- **Highly Configurable**: Customize every aspect of your PDF
+- **Type-Safe**: Builder pattern with strong typing for error-free development
+- **Well-Tested**: Extensive test coverage ensuring reliability
+- **Well-Documented**: Comprehensive documentation with examples
+
+## Requirements
+
+- Java 17 or higher
 - Maven 3.x
 
-## Qualidade de Código
+## Installation
 
-O projeto utiliza várias ferramentas para garantir a qualidade do código:
-
-### Checkstyle
-- Garante consistência no estilo de código
-- Verifica padrões de codificação Java
-- Configurado com regras baseadas no Google Java Style
-- Execute com: `mvn checkstyle:check`
-
-### JaCoCo
-- Cobertura mínima de código: 80%
-- Monitora execução de testes
-- Gera relatórios detalhados de cobertura
-- Relatório disponível em: `target/site/jacoco/index.html`
-- Execute com: `mvn test jacoco:report`
-
-### SpotBugs
-- Análise estática para encontrar bugs potenciais
-- Verifica problemas de segurança
-- Identifica más práticas de programação
-- Execute com: `mvn spotbugs:check`
-
-## Dependências Principais
-
-- Apache PDFBox 3.0.1
-- Commons IO 2.15.1
-- SLF4J 2.0.11
-- JUnit Jupiter 5.10.1 (para testes)
-
-## Instalação
-
-Para incluir o PDF Builder em seu projeto Maven, adicione a seguinte dependência ao seu `pom.xml`:
+Add the following dependency to your `pom.xml`:
 
 ```xml
 <dependency>
@@ -50,85 +33,31 @@ Para incluir o PDF Builder em seu projeto Maven, adicione a seguinte dependênci
 </dependency>
 ```
 
-## Estrutura do Projeto
+## Quick Start
 
-```
-pdf-builder/
-├── src/
-│   ├── main/java/br/com/nutit/pdfbuilder/
-│   │   ├── components/              
-│   │   │   ├── image/              # Componentes de imagem
-│   │   │   ├── list/               # Componentes de lista
-│   │   │   ├── logo/               # Componentes de logo
-│   │   │   ├── page/               # Componentes de página
-│   │   │   ├── table/              # Componentes de tabela
-│   │   │   └── text/               # Componentes de texto
-│   │   ├── core/                   # Classes principais
-│   │   │   ├── Coordinates.java    # Sistema de coordenadas
-│   │   │   ├── PDFBuilder.java     # Classe principal
-│   │   │   ├── PDFConfiguration.java # Configurações
-│   │   │   ├── ResourceManager.java  # Gerenciamento de recursos
-│   │   │   └── SafeArea.java        # Áreas seguras
-│   │   ├── examples/               # Exemplos de uso
-│   │   ├── exceptions/             # Exceções customizadas
-│   │   └── utils/                  # Classes utilitárias
-│   └── test/                       # Testes unitários
-└── pom.xml                         # Configuração Maven
-```
-
-## Funcionalidades
-
-### 1. Configuração do Documento
-- Tamanho de página personalizado (A4, A3, etc.)
-- Margens personalizadas
-- DPI para imagens
-- Qualidade de compressão
-- Tamanho de fonte e espaçamento padrão
-- Área segura com suporte a cabeçalho e rodapé
-
-### 2. Sistema de Coordenadas
-- Movimentação relativa (direita, abaixo)
-- Movimentação absoluta (topo, início, fundo)
-- Sistema de margens e áreas seguras
-- Posicionamento percentual na página
-
-### 3. Componentes de Texto
-- Texto simples com formatação
-- Parágrafos com alinhamento
-- Títulos e subtítulos (H1-H6)
-- Estilos de texto personalizados
-- Fontes e cores customizáveis
-
-### 4. Componentes de Imagem
-- Suporte a diversos formatos (JPG, PNG)
-- Redimensionamento automático
-- Manutenção de proporção
-- Alinhamento flexível
-- Legendas opcionais
-
-### 5. Componentes de Lista
-- Listas ordenadas e não-ordenadas
-- Estilos de marcadores personalizáveis
-- Suporte a múltiplos níveis
-- Formatação flexível
-
-### 6. Componentes de Tabela
-- Tabelas simples com cabeçalho
-- Alinhamento de células
-- Estilos de borda personalizáveis
-- Cores alternadas para linhas
-
-### 7. Cabeçalho e Rodapé
-- Logo personalizado com imagens
-- Numeração de páginas automática
-- Rodapé confidencial
-- Estilos predefinidos
-
-## Exemplos de Uso
-
-### Documento Básico
 ```java
-// Configuração do documento
+PDFBuilder builder = new PDFBuilder();
+
+// Add a heading
+builder.addHeading(Heading.builder()
+    .withText("My Document")
+    .withLevel(HeadingLevel.H1)
+    .build());
+
+// Add a paragraph
+builder.addParagraph(Paragraph.builder()
+    .addText("Hello, World!")
+    .withAlignment(TextAlignment.CENTER)
+    .build());
+
+// Save the document
+builder.save("output.pdf");
+```
+
+## Core Components
+
+### Document Configuration
+```java
 PDFConfiguration config = PDFConfiguration.create()
     .withPageSize(PDRectangle.A4)
     .withMargins(50f, 40f, 30f, 40f)
@@ -136,93 +65,100 @@ PDFConfiguration config = PDFConfiguration.create()
     .build();
 
 PDFBuilder builder = new PDFBuilder(config);
-
-// Adiciona título
-builder.addHeading(Heading.builder()
-    .withText("Meu Documento")
-    .withLevel(HeadingLevel.H1)
-    .build());
-
-// Adiciona parágrafo
-builder.addParagraph(Paragraph.builder()
-    .addStyledText("Este é um exemplo de parágrafo com ", TextStyle.DEFAULT)
-    .addStyledText("texto em negrito", TextStyle.builder().withBold(true).build())
-    .build());
-
-// Salva o documento
-builder.save("exemplo.pdf");
 ```
 
-### Logo e Numeração de Páginas
+### Headers and Footers
 ```java
-// Configuração do logo
-LogoStyle logoStyle = LogoStyle.builder()
-    .withFontSize(16f)
-    .withColor(Color.BLACK)
-    .withImageWidth(50f)
-    .withImageHeight(30f)
-    .withMaintainAspectRatio(true)
-    .build();
+// Add company logo
+builder.setLogo(Logo.builder()
+    .withText("Company Name")
+    .withLeftImage("path/to/logo.png")
+    .withStyle(LogoStyle.DEFAULT)
+    .build());
 
-// Configuração da numeração de páginas
-PageNumbering pageNumbering = PageNumbering.builder()
-    .withFormat(PageNumbering.Format.WITH_TOTAL)
-    .withPosition(PageNumbering.Position.BOTTOM)
-    .withAlignment(TextAlignment.RIGHT)
-    .build();
-
-// Adiciona logo e numeração
-builder.setLogo("Minha Empresa", logoStyle, "logo-left.png", "logo-right.png");
-builder.setPageNumbering(pageNumbering);
+// Add page numbering
+builder.setPageNumbering(PageNumbering.builder()
+    .withFormat("Page {current} of {total}")
+    .withPosition(Position.BOTTOM_RIGHT)
+    .build());
 ```
 
-### Tabelas e Listas
+### Tables
 ```java
-// Criação de tabela
 Table table = Table.builder()
-    .withHeaders("Nome", "Idade", "Cidade")
-    .addRow("João", "25", "São Paulo")
-    .addRow("Maria", "30", "Rio de Janeiro")
+    .withHeaders("Name", "Age", "City")
+    .addRow("John Doe", "30", "New York")
+    .addRow("Jane Smith", "25", "London")
+    .withStyle(TableStyle.builder()
+        .withBorderWidth(1f)
+        .withHeaderBackground(Color.LIGHT_GRAY)
+        .build())
     .build();
 
-// Criação de lista
+builder.addTable(table);
+```
+
+### Lists
+```java
 List list = List.builder()
     .withOrdered(true)
-    .addItem("Primeiro item")
-    .addItem("Segundo item")
-    .addItem("Terceiro item")
+    .addItem("First item")
+    .addItem("Second item with nested list",
+        List.builder()
+            .withOrdered(false)
+            .addItem("Nested item 1")
+            .addItem("Nested item 2")
+            .build())
     .build();
 
-// Adiciona ao documento
-builder.addTable(table);
 builder.addList(list);
 ```
 
-## Development
+## Project Structure
 
-For development guidelines, please see [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Testes
-
-Para executar os testes:
-
-```bash
-mvn clean test
+```
+pdf-builder/
+├── src/
+│   ├── main/java/io/github/joabsonlg/pdfbuilder/
+│   │   ├── components/              # PDF Components
+│   │   │   ├── image/              # Image handling
+│   │   │   ├── list/               # List components
+│   │   │   ├── logo/               # Logo components
+│   │   │   ├── page/               # Page components
+│   │   │   ├── table/              # Table components
+│   │   │   └── text/               # Text components
+│   │   ├── core/                   # Core classes
+│   │   ├── examples/               # Usage examples
+│   │   ├── exceptions/             # Custom exceptions
+│   │   └── utils/                  # Utility classes
+│   └── test/                       # Unit tests
+└── pom.xml                         # Maven configuration
 ```
 
-## Próximos Passos
+## Quality Assurance
 
-- Tabelas complexas com merge de células
-- Marcas d'água
-- Links e âncoras
-- Índice automático
-- QR Codes e códigos de barras
-- Templates pré-definidos
+We maintain high code quality standards through:
 
-## Licença
+- **Checkstyle**: Enforces Google Java Style Guide
+- **SpotBugs**: Static analysis for potential bugs
+- **JaCoCo**: Ensures 80%+ code coverage
+- **JUnit**: Comprehensive unit testing
 
-Este projeto está sob a licença [MIT](LICENSE).
+## Contributing
 
-## Contribuindo
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-Contribuições são bem-vindas! Por favor, leia o guia de contribuição para saber como contribuir com o projeto.
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Dependencies
+
+- Apache PDFBox 3.0.1
+- Commons IO 2.15.1
+- SLF4J 2.0.11
+- JUnit Jupiter 5.10.1 (test)
