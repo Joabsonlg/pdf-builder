@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Ignore warnings in generated code -->
+    <Match>
+        <Class name="~.*\.*\$.*"/>
+    </Match>
+
+    <!-- Ignore warnings about unused fields in test classes -->
+    <Match>
+        <Class name="~.*\.*Test"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+
+    <!-- Ignore serialVersionUID warnings -->
+    <Match>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+
+    <!-- Ignore warnings about missing builder pattern setters -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>

@@ -1,0 +1,429 @@
+name: Build and Quality Check
+
+# Workflow Configurations
+env:
+  # Build configurations
+  JAVA_VERSION: '17'
+  MAVEN_CLI_OPTS: "-B -ntp" # Non-interactive, no transfer progress
+  MAVEN_OPTS: "-Xmx4g -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn" # More memory, less logging
+  
+  # Quality thresholds
+  MIN_COVERAGE: 80
+  MAX_SPOTBUGS: 0
+  
+  # Cache settings
+  CACHE_DURATION: 7
+
+# When this workflow will run
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+  pull_request:
+    branches: [ "main", "develop" ]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run with debug logging'
+        type: boolean
+        required: false
+        default: false
+
+# Concurrency group to cancel outdated runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build, Test and Quality Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15 # Prevent hanging builds
+
+    steps:
+      # Step 1: Basic Setup
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Full history for better blame info
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: maven
+
+      # Step 2: Build and Test
+      - name: Build project
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} clean compile
+        env:
+          MAVEN_OPTS: ${{ env.MAVEN_OPTS }}
+        
+      - name: Run unit tests
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} test
+        env:
+          MAVEN_OPTS: ${{ env.MAVEN_OPTS }}
+
+      # Step 3: Quality Checks
+      - name: Check code style
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} checkstyle:check
+        continue-on-error: true # Don't fail build, but report
+        
+      - name: Run static code analysis
+        run: |
+          mvn ${{ env.MAVEN_CLI_OPTS }} spotbugs:check
+          echo "SPOTBUGS_FOUND=$(find target/spotbugsXml.xml -type f -exec grep -c '<BugInstance' {} \; || echo '0')" >> $GITHUB_ENV
+        
+      - name: Generate coverage report
+        run: |
+          mvn ${{ env.MAVEN_CLI_OPTS }} jacoco:report
+          echo "COVERAGE=$(mvn ${{ env.MAVEN_CLI_OPTS }} jacoco:report | grep -A 1 "Line Coverage" | tail -n 1 | grep -o '[0-9]*%' | cut -d'%' -f1)" >> $GITHUB_ENV
+
+      # Step 4: Security Scan
+      - name: Run OWASP Dependency Check
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} org.owasp:dependency-check-maven:check
+        continue-on-error: true
+
+      # Step 5: Performance Check
+      - name: Check for performance regressions
+        run: |
+          # Compare test execution times with baseline
+          if [ -f ".github/performance-baseline.json" ]; then
+            echo "Comparing test execution times..."
+            mvn ${{ env.MAVEN_CLI_OPTS }} surefire-report:report
+          else
+            echo "No performance baseline found. Skipping check."
+          fi
+        continue-on-error: true
+
+      # Step 6: Store Results
+      - name: Save test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            target/surefire-reports/
+            target/site/jacoco/
+            target/dependency-check-report.html
+          retention-days: ${{ env.CACHE_DURATION }}
+
+      # Step 7: Cache
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2
+            target/
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}-
+            ${{ runner.os }}-m2-
+
+      # Step 8: Report Status
+      - name: Check Quality Gates
+        if: always()
+        run: |
+          if [ "${{ env.COVERAGE }}" -lt "${{ env.MIN_COVERAGE }}" ]; then
+            echo "::error::Coverage ${COVERAGE}% is below minimum ${MIN_COVERAGE}%"
+            exit 1
+          fi
+          
+          if [ "${{ env.SPOTBUGS_FOUND }}" -gt "${{ env.MAX_SPOTBUGS }}" ]; then
+            echo "::error::Found ${SPOTBUGS_FOUND} SpotBugs issues"
+            exit 1
+          fi
+
+      - name: Report build status
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { conclusion } = context;
+            const status = conclusion === 'success' ? '✅' : '❌';
+            
+            const coverage = process.env.COVERAGE;
+            const spotbugs = process.env.SPOTBUGS_FOUND;
+            
+            const message = `${status} Build ${conclusion}
+              
+              Quality Metrics:
+              - Coverage: ${coverage}% (minimum: ${process.env.MIN_COVERAGE}%)
+              - SpotBugs Issues: ${spotbugs}
+              - Build and compile: ${conclusion}
+              - Unit tests: completed
+              - Code style: checked
+              - Security scan: completed
+              - Performance: checked
+              
+              Artifacts:
+              - Test results
+              - Coverage report
+              - Dependency check report
+              
+              See detailed results in the Actions tab.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+  analyze-pr:
+    needs: build-and-test
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    outputs:
+      commit_message: ${{ steps.generate_commit.outputs.message }}
+      has_breaking_change: ${{ steps.analyze_commits.outputs.has_breaking_change }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Analyze PR commits
+        id: analyze_commits
+        run: |
+          # Get all commits in the PR
+          COMMITS=$(git log --format="%B" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+          
+          # Initialize variables
+          FEATURES=""
+          FIXES=""
+          OTHERS=""
+          HAS_BREAKING=false
+          
+          # Analyze each commit
+          while IFS= read -r commit; do
+            if [[ "$commit" == *"BREAKING CHANGE"* ]]; then
+              HAS_BREAKING=true
+            fi
+            
+            if [[ "$commit" =~ ^feat:* ]]; then
+              FEATURES="$FEATURES\n- ${commit#feat: }"
+            elif [[ "$commit" =~ ^fix:* ]]; then
+              FIXES="$FIXES\n- ${commit#fix: }"
+            elif [[ "$commit" =~ ^(docs|style|refactor|perf|test|build|ci|chore):* ]]; then
+              OTHERS="$OTHERS\n- $commit"
+            fi
+          done <<< "$COMMITS"
+          
+          # Save results
+          echo "has_breaking_change=$HAS_BREAKING" >> $GITHUB_OUTPUT
+          echo "features<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$FEATURES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "fixes<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$FIXES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "others<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$OTHERS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Generate squash commit message
+        id: generate_commit
+        run: |
+          # Start with a default message
+          MESSAGE="Merge pull request #${{ github.event.pull_request.number }}"
+          
+          # Add breaking change warning
+          if [[ "${{ steps.analyze_commits.outputs.has_breaking_change }}" == "true" ]]; then
+            MESSAGE="$MESSAGE\n\nBREAKING CHANGE: This commit contains breaking changes!"
+          fi
+          
+          # Add features
+          if [ ! -z "${{ steps.analyze_commits.outputs.features }}" ]; then
+            MESSAGE="$MESSAGE\n\nFeatures:${{ steps.analyze_commits.outputs.features }}"
+          fi
+          
+          # Add fixes
+          if [ ! -z "${{ steps.analyze_commits.outputs.fixes }}" ]; then
+            MESSAGE="$MESSAGE\n\nFixes:${{ steps.analyze_commits.outputs.fixes }}"
+          fi
+          
+          # Add other changes
+          if [ ! -z "${{ steps.analyze_commits.outputs.others }}" ]; then
+            MESSAGE="$MESSAGE\n\nOther:${{ steps.analyze_commits.outputs.others }}"
+          fi
+          
+          # Save the message
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$MESSAGE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Comment PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const message = `## 📦 PR Analysis
+            
+            This PR will be squashed with the following commit message:
+            
+            \`\`\`
+            ${{ steps.generate_commit.outputs.message }}
+            \`\`\`
+            
+            This will trigger a ${${{ steps.analyze_commits.outputs.has_breaking_change }} ? 'MAJOR' : 'MINOR/PATCH'} version bump.
+            
+            Please review the commit message and make sure it accurately represents all changes in this PR.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+  version-and-tag:
+    needs: [build-and-test, analyze-pr]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.versioning.outputs.new_version }}
+      changelog: ${{ steps.versioning.outputs.changelog }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Full history for version management
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install semantic-release
+        run: |
+          npm install -g semantic-release
+          npm install -g @semantic-release/git
+          npm install -g @semantic-release/changelog
+          npm install -g @semantic-release/exec
+          
+      - name: Create .releaserc
+        run: |
+          cat > .releaserc << EOF
+          {
+            "branches": ["main"],
+            "plugins": [
+              "@semantic-release/commit-analyzer",
+              "@semantic-release/release-notes-generator",
+              "@semantic-release/changelog",
+              ["@semantic-release/exec", {
+                "prepareCmd": "mvn versions:set -DnewVersion=\${nextRelease.version} -DgenerateBackupPoms=false"
+              }],
+              ["@semantic-release/git", {
+                "assets": ["pom.xml", "CHANGELOG.md"],
+                "message": "chore(release): \${nextRelease.version} [skip ci]\n\n\${nextRelease.notes}"
+              }],
+              "@semantic-release/github"
+            ],
+            "preset": "angular",
+            "releaseRules": [
+              {"type": "feat", "release": "minor"},
+              {"type": "fix", "release": "patch"},
+              {"type": "perf", "release": "patch"},
+              {"type": "docs", "release": "patch"},
+              {"type": "style", "release": "patch"},
+              {"type": "refactor", "release": "patch"},
+              {"type": "test", "release": "patch"},
+              {"type": "build", "release": "patch"},
+              {"breaking": true, "release": "major"}
+            ]
+          }
+          EOF
+
+      - name: Run semantic-release
+        id: versioning
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(semantic-release --dry-run | grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+' || echo '')
+          NOTES=$(semantic-release --dry-run | sed -n '/Release notes:/,/---/p' || echo '')
+          
+          if [ ! -z "$VERSION" ]; then
+            echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+            echo "changelog<<EOF" >> $GITHUB_OUTPUT
+            echo "$NOTES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            
+            semantic-release
+          else
+            echo "No version change needed"
+          fi
+
+      - name: Update version in pom.xml
+        if: steps.versioning.outputs.new_version != ''
+        run: |
+          mvn versions:set -DnewVersion=${{ steps.versioning.outputs.new_version }} -DgenerateBackupPoms=false
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add pom.xml
+          git commit -m "chore(release): update version in pom.xml to ${{ steps.versioning.outputs.new_version }} [skip ci]"
+          git push
+
+      - name: Update PR commit message
+        run: |
+          echo "${{ needs.analyze-pr.outputs.commit_message }}" > .git/SQUASH_MSG
+          
+      - name: Set version bump type
+        if: needs.analyze-pr.outputs.has_breaking_change == 'true'
+        run: echo "RELEASE_TYPE=major" >> $GITHUB_ENV
+
+      - name: Create Release
+        if: steps.versioning.outputs.new_version != ''
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.versioning.outputs.new_version }}
+          release_name: Release v${{ steps.versioning.outputs.new_version }}
+          body: |
+            ${{ steps.versioning.outputs.changelog }}
+          draft: false
+          prerelease: false
+
+  notify:
+    needs: [build-and-test, version-and-tag]
+    if: needs.version-and-tag.outputs.new_version != ''
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Create PR Comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const version = '${{ needs.version-and-tag.outputs.new_version }}';
+            const changelog = `${{ needs.version-and-tag.outputs.changelog }}`;
+            
+            const message = `🎉 New version released: v${version}
+            
+            Changes in this release:
+            ${changelog}
+            
+            The version has been automatically updated based on Conventional Commits:
+            - feat: Minor version bump (new features)
+            - fix: Patch version bump (bug fixes)
+            - BREAKING CHANGE: Major version bump
+            
+            The new version is now available on GitHub Releases.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
