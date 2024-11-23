@@ -1,0 +1,22 @@
+title: PDF Builder Documentation
+description: A high-level Java library for PDF generation
+theme: jekyll-theme-cayman
+markdown: kramdown
+highlighter: rouge
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Navigation
+nav:
+  - title: Getting Started
+    url: /getting-started
+  - title: Components
+    url: /components
+  - title: Examples
+    url: /examples
+  - title: API Reference
+    url: /api
+  - title: GitHub
+    url: https://github.com/joabsonlg/pdf-builder
