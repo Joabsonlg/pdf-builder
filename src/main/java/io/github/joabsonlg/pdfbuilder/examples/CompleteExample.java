@@ -1,7 +1,6 @@
 package io.github.joabsonlg.pdfbuilder.examples;
 
 import io.github.joabsonlg.pdfbuilder.components.image.Image;
-import io.github.joabsonlg.pdfbuilder.components.list.List.ListItem;
 import io.github.joabsonlg.pdfbuilder.components.logo.LogoStyle;
 import io.github.joabsonlg.pdfbuilder.components.page.PageNumbering;
 import io.github.joabsonlg.pdfbuilder.components.page.PageSectionStyle;
@@ -41,38 +40,41 @@ public final class CompleteExample {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
-    public static void main(String[] args) {
-        try {
-            SafeArea safeArea = SafeArea.builder()
-                    .withMargins(50f, 40f, 30f, 40f)
-                    .withHeader(true)
-                    .withFooter(true)
-                    .build();
+    public static void main(String[] args) throws IOException {
+        SafeArea safeArea = SafeArea.builder()
+                .withMargins(50f, 40f, 40f, 40f)
+                .withHeader(true)
+                .withFooter(true)
+                .build();
 
-            PDFConfiguration config = PDFConfiguration.create()
-                    .withPageSize(PDRectangle.A4)
-                    .withSafeArea(safeArea)
-                    .withDPI(300)
-                    .withCompressionQuality(0.8f)
-                    .withFontSize(12f)
-                    .withLineSpacing(14f)
-                    .build();
+        PDFConfiguration config = PDFConfiguration.create()
+                .withPageSize(PDRectangle.A4)
+                .withSafeArea(safeArea)
+                .withDPI(300)
+                .withCompressionQuality(0.8f)
+                .withFontSize(12f)
+                .withLineSpacing(14f)
+                .build();
 
-            PDFBuilder builder = new PDFBuilder(config);
+        PDFBuilder builder = new PDFBuilder(config);
 
-            PDFont defaultFont = builder.getResourceManager().getDefaultFont();
+        PDFont defaultFont = builder.getResourceManager().getDefaultFont();
 
-            TextStyle titleStyle = TextStyle.builder()
-                    .withFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD))
-                    .withFontSize(24f)
-                    .withColor(new Color(0, 51, 102))
-                    .build();
+        TextStyle titleStyle = TextStyle.builder()
+                .withFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD))
+                .withFontSize(24)
+                .build();
 
-            TextStyle boldStyle = TextStyle.builder()
-                    .withFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD))
-                    .withFontSize(12)
-                    .withColor(Color.BLACK)
-                    .build();
+        TextStyle subtitleStyle = TextStyle.builder()
+                .withFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD))
+                .withFontSize(18)
+                .build();
+
+        TextStyle boldStyle = TextStyle.builder()
+                .withFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD))
+                .withFontSize(12)
+                .withColor(Color.BLACK)
+                .build();
 
             LogoStyle logoStyle = LogoStyle.builder()
                     .withFontSize(16f)
@@ -85,132 +87,98 @@ public final class CompleteExample {
                     .withImageMargin(10f)
                     .build();
 
-            String imagePath = "src/main/java/io/github/joabsonlg/pdfbuilder/examples/sample-image.jpg";
-            builder.setLogo("PDF Builder - Complete example", logoStyle, imagePath, imagePath);
+        String imagePath = "src/main/java/io/github/joabsonlg/pdfbuilder/examples/chart.jpg";
+        builder.setLogo("PDF Builder - Complete example", logoStyle, imagePath, imagePath);
 
-            PageNumbering pageNumbering = PageNumbering.builder()
-                    .withFont(defaultFont)
-                    .withFontSize(10)
-                    .withColor(new Color(128, 128, 128))
-                    .withFormat(PageNumbering.Format.WITH_TOTAL)
-                    .withPosition(PageNumbering.Position.BOTTOM)
-                    .withAlignment(TextAlignment.RIGHT)
-                    .build();
+        PageNumbering pageNumbering = PageNumbering.builder()
+                .withFont(defaultFont)
+                .withFontSize(10)
+                .withColor(new Color(128, 128, 128))
+                .withFormat(PageNumbering.Format.WITH_TOTAL)
+                .withPosition(PageNumbering.Position.BOTTOM)
+                .withAlignment(TextAlignment.RIGHT)
+                .build();
 
-            builder.setFooter(PageSectionStyle.createConfidentialFooter("joabsonlg"));
-            builder.setPageNumbering(pageNumbering);
+        builder.setFooter(PageSectionStyle.createConfidentialFooter("joabsonlg"));
+        builder.setPageNumbering(pageNumbering);
 
-            builder.addHeading(Heading.builder()
-                    .withText("Complete demonstration of the PDF Builder library")
-                    .withLevel(HeadingLevel.H1)
-                    .withStyle(titleStyle)
-                    .withAlignment(TextAlignment.CENTER)
-                    .build());
+        builder.addHeading(Heading.builder()
+                .withText("2024 Election Results Report")
+                .withLevel(HeadingLevel.H1)
+                .withStyle(titleStyle)
+                .withSpacingBefore(10)
+                .withSpacingAfter(10)
+                .build());
 
-            TextStyle defaultStyle = TextStyle.builder()
-                    .withFont(defaultFont)
-                    .withFontSize(12f)
-                    .withColor(Color.BLACK)
-                    .build();
+        builder.addHorizontalRule(new Color(72, 183, 208));
 
-            builder.addParagraph(Paragraph.builder()
-                    .addStyledText("This is a complete example demonstrating all the features of the ", defaultStyle)
-                    .addStyledText("PDF Builder", boldStyle)
-                    .addStyledText(". Below you will see examples of headers, footers, lists, tables, and images.", defaultStyle)
-                    .build());
+        builder.moveDown(10);
 
-            builder.moveDown(10);
+        builder.addHeading(Heading.builder()
+                .withText("Executive Summary")
+                .withLevel(HeadingLevel.H2)
+                .withStyle(subtitleStyle)
+                .withSpacingBefore(10)
+                .withSpacingAfter(30)
+                .build());
 
-            for (int i = 0; i < 15; i++) {
-                LOGGER.info("Adding paragraph {}", i);
-                builder.addParagraph(Paragraph.builder()
-                        .withAlignment(TextAlignment.JUSTIFIED)
-                        .addStyledText(i + ": Mussum Ipsum, cacilds vidis litro abertis.  Interagi no mé, cursus quis, " +
-                                "vehicula ac nisi. Mé faiz elementum girarzis, nisi eros vermeio. Manduma pindureta quium " +
-                                "dia nois paga. Vehicula non. Ut sed ex eros. Vivamus sit amet nibh non tellus tristique " +
-                                "interdum.", defaultStyle)
-                        .build());
-                builder.moveDown(10);
-            }
+        TextStyle defaultStyle = TextStyle.builder()
+                .withFont(defaultFont)
+                .withFontSize(12f)
+                .withColor(Color.BLACK)
+                .build();
 
-            builder.moveDown(20);
+        builder.addParagraph(Paragraph.builder()
+                .addStyledText("This report presents the comprehensive results of the 2024 election, including " +
+                        "detailed analysis of voting patterns, candidate performance, and final outcomes for all contested " +
+                        "positions. The election saw a total turnout of ", defaultStyle)
+                .addStyledText("3,840", boldStyle)
+                .addStyledText(" voters, representing ", defaultStyle)
+                .addStyledText("78%", boldStyle)
+                .addStyledText(" of eligible voters.", defaultStyle)
+                .withAlignment(TextAlignment.JUSTIFIED)
+                .build());
 
-            File imageFile = new File(imagePath);
-            Image mainImage = Image.builder(builder.getDocument(), imageFile)
-                    .withWidth(400)
-                    .withAlignment(Image.Alignment.CENTER)
-                    .withCaption("Figure 1: Example of a centered image")
-                    .build();
+        builder.moveDown(10);
 
-            builder.addImage(mainImage);
-            builder.moveDown(20);
+        builder.addHeading(Heading.builder()
+                .withText("President")
+                .withLevel(HeadingLevel.H2)
+                .withStyle(subtitleStyle)
+                .withSpacingBefore(10)
+                .withSpacingAfter(30)
+                .build());
 
-            // Cria uma lista com itens estilizados
-            java.util.List<ListItem> items = new ArrayList<>();
+        File imageFile = new File(imagePath);
+        Image mainImage = Image.builder(builder.getDocument(), imageFile)
+                .withWidth(560)
+                .withAlignment(Image.Alignment.LEFT)
+                .withCaption("Image 1: 2024 Election Results")
+                .build();
 
-            ListItem item1 = new ListItem("PDF Builder Features:", defaultFont, 12, Color.BLACK);
-            item1.addSubItem(new ListItem("Custom Headers and Footers", defaultFont, 12, Color.BLACK));
-            item1.addSubItem(new ListItem("Automatic Page Numbering", defaultFont, 12, Color.BLACK));
-            item1.addSubItem(new ListItem("Support for Images with Captions", defaultFont, 12, Color.BLACK));
-            items.add(item1);
+        builder.addImage(mainImage);
+        builder.moveDown(10);
 
-            ListItem item2 = new ListItem("Text Formatting:", defaultFont, 12, Color.BLACK);
-            item2.addSubItem(new ListItem("Different Styles and Colors", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Custom Alignment", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Support for Multiple Fonts", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Different Styles and Colors", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Custom Alignment", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Support for Multiple Fonts", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Different Styles and Colors", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Custom Alignment", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Support for Multiple Fonts", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Different Styles and Colors", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Custom Alignment", defaultFont, 12, Color.BLACK));
-            item2.addSubItem(new ListItem("Support for Multiple Fonts", defaultFont, 12, Color.BLACK));
-            items.add(item2);
+        java.util.List<java.util.List<String>> tableData = new ArrayList<>();
+        tableData.add(java.util.Arrays.asList("Candidate", "Votes", "Percentage"));
+        tableData.add(java.util.Arrays.asList("John Doe", "1,920", "50%"));
+        tableData.add(java.util.Arrays.asList("Jane Smith", "1,440", "37.5%"));
+        tableData.add(java.util.Arrays.asList("Alice Johnson", "480", "12.5%"));
 
-            io.github.joabsonlg.pdfbuilder.components.list.List list = io.github.joabsonlg.pdfbuilder.components.list.List.builder()
-                    .withFont(defaultFont)
-                    .withFontSize(12)
-                    .withListItems(items)
-                    .withTextColor(Color.BLACK)
-                    .withIndentation(30)
-                    .withLineSpacing(8)
-                    .build();
+        Table table = Table.builder()
+                .withData(tableData)
+                .withColumnWidths(150, 200, 150)
+                .withRowHeight(30)
+                .withFontSize(12)
+                .withHeaderBackgroundColor(new Color(249, 250, 251))
+                .withHeaderTextColor(Color.BLACK)
+                .withBorderColor(new Color(249, 250, 251))
+                .withBorderWidth(1.5f)
+                .build();
 
-            builder.addList(list);
-            builder.moveDown(20);
-            java.util.List<java.util.List<String>> tableData = new ArrayList<>();
-            tableData.add(java.util.Arrays.asList("Feature", "Description", "Status"));
-            tableData.add(java.util.Arrays.asList("Headers", "Support for logos and titles", "Implemented"));
-            tableData.add(java.util.Arrays.asList("Footers", "Page numbering and texts", "Implemented"));
-            tableData.add(java.util.Arrays.asList("Images", "Support for different formats", "Implemented"));
-            tableData.add(java.util.Arrays.asList("Tables", "Complete formatting", "Implemented"));
+        builder.addTable(table);
+        builder.moveDown(20);
 
-            Table table = Table.builder()
-                    .withData(tableData)
-                    .withColumnWidths(150, 200, 150)
-                    .withRowHeight(30)
-                    .withFontSize(12)
-                    .withHeaderBackgroundColor(new Color(51, 122, 183))
-                    .withHeaderTextColor(Color.WHITE)
-                    .withBorderColor(new Color(51, 122, 183))
-                    .withBorderWidth(1.5f)
-                    .build();
-
-            builder.addTable(table);
-            builder.moveDown(20);
-
-            Image footerImage = Image.builder(builder.getDocument(), imageFile)
-                    .withWidth(200)
-                    .withAlignment(Image.Alignment.RIGHT)
-                    .build();
-
-            builder.addImage(footerImage);
-
-            builder.save("complete-example.pdf");
-        } catch (IOException e) {
-            LOGGER.error("Error generating PDF: {}", e.getMessage(), e);
-        }
+        builder.save("complete-example.pdf");
     }
 }

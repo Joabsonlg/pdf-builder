@@ -30,8 +30,8 @@ public final class Heading {
         this.style = builder.style;
         this.numbered = builder.numbered;
         this.number = builder.number;
-        this.spacingBefore = builder.level.getSpacingBefore();
-        this.spacingAfter = builder.level.getSpacingAfter();
+        this.spacingBefore = builder.spacingBefore;
+        this.spacingAfter = builder.spacingAfter;
         this.alignment = builder.alignment;
     }
 
@@ -95,7 +95,9 @@ public final class Heading {
             contentStream.showText(line);
             contentStream.endText();
 
-            y -= fontSize * 1.2f;
+            if (lines.indexOf(line) < lines.size() - 1) {
+                y -= fontSize * 1.2f;
+            }
         }
 
         return y - spacingAfter;
@@ -107,21 +109,29 @@ public final class Heading {
         StringBuilder currentLine = new StringBuilder();
 
         for (String word : words) {
-            String testLine = !currentLine.isEmpty() ? currentLine + " " + word : word;
-            float textWidth = font.getStringWidth(testLine) / 1000 * fontSize;
-
-            if (textWidth > maxWidth) {
-                if (!currentLine.isEmpty()) {
-                    lines.add(currentLine.toString());
+            if (currentLine.isEmpty()) {
+                float wordWidth = font.getStringWidth(word) / 1000 * fontSize;
+                if (wordWidth > maxWidth) {
+                    lines.add(word);
+                    currentLine = new StringBuilder();
+                } else {
+                    currentLine.append(word);
                 }
-                currentLine = new StringBuilder(word);
             } else {
-                currentLine.append(" ").append(word);
+                String testLine = currentLine + " " + word;
+                float textWidth = font.getStringWidth(testLine) / 1000 * fontSize;
+
+                if (textWidth > maxWidth) {
+                    lines.add(currentLine.toString());
+                    currentLine = new StringBuilder(word);
+                } else {
+                    currentLine.append(" ").append(word);
+                }
             }
         }
 
         if (!currentLine.isEmpty()) {
-            lines.add(currentLine.toString());
+            lines.add(currentLine.toString().trim());
         }
 
         return lines;
@@ -139,6 +149,8 @@ public final class Heading {
         private boolean numbered;
         private String number;
         private TextAlignment alignment = TextAlignment.LEFT;
+        private float spacingBefore = 0;
+        private float spacingAfter = 0;
 
         public Builder withLevel(HeadingLevel level) {
             this.level = level;
@@ -167,6 +179,16 @@ public final class Heading {
 
         public Builder withAlignment(TextAlignment alignment) {
             this.alignment = alignment;
+            return this;
+        }
+
+        public Builder withSpacingBefore(float spacingBefore) {
+            this.spacingBefore = spacingBefore;
+            return this;
+        }
+
+        public Builder withSpacingAfter(float spacingAfter) {
+            this.spacingAfter = spacingAfter;
             return this;
         }
 

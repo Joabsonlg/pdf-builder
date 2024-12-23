@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
@@ -334,10 +335,10 @@ public class PDFBuilder {
         try {
             PDRectangle contentArea = config.getSafeArea().getContentArea(config.getPageSize());
             float safeWidth = contentArea.getWidth();
-            
+
             // Verifica se precisa de nova página
             checkNewPage(paragraph.calculateHeight());
-            
+
             float newY = paragraph.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
             LOGGER.debug("Parágrafo adicionado com alinhamento");
@@ -731,6 +732,27 @@ public class PDFBuilder {
     }
 
     /**
+     * Salva o documento PDF em um ByteArrayOutputStream.
+     *
+     * @param outputStream O ByteArrayOutputStream onde o PDF será salvo
+     * @throws IOException Se ocorrer um erro ao salvar o documento
+     */
+    public void saveToOutputStream(ByteArrayOutputStream outputStream) throws IOException {
+        try {
+            if (contentStream != null) {
+                addFooter();
+                contentStream.close();
+                contentStream = null;
+            }
+            document.save(outputStream);
+        } finally {
+            if (document != null) {
+                document.close();
+            }
+        }
+    }
+
+    /**
      * Fecha o builder e libera recursos.
      */
     public void close() {
@@ -745,6 +767,48 @@ public class PDFBuilder {
         } catch (IOException e) {
             throw new RuntimeException("Erro ao fechar recursos", e);
         }
+    }
+
+    /**
+     * Adiciona uma linha horizontal (régua) ao documento.
+     *
+     * @param color     Cor da linha
+     * @return this para chamadas encadeadas
+     */
+    public PDFBuilder addHorizontalRule(Color color) {
+        try {
+            PDRectangle contentArea = config.getSafeArea().getContentArea(config.getPageSize());
+            float safeWidth = contentArea.getWidth();
+
+            // Verifica se precisa de nova página
+            checkNewPage(1.0f);
+
+            // Configura a cor e largura da linha
+            contentStream.setStrokingColor(color);
+            contentStream.setLineWidth(1.0f);
+
+            // Desenha a linha horizontal
+            contentStream.moveTo(currentPosition.getX(), currentPosition.getY());
+            contentStream.lineTo(currentPosition.getX() + safeWidth, currentPosition.getY());
+            contentStream.stroke();
+
+            // Move para baixo após desenhar a linha
+            moveTo(currentPosition.getX(), currentPosition.getY() - 20f);
+
+            LOGGER.debug("Linha horizontal adicionada com largura {} e cor {}", 1.0f, color);
+            return this;
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao adicionar linha horizontal", e);
+        }
+    }
+
+    /**
+     * Adiciona uma linha horizontal (régua) ao documento com configurações padrão.
+     *
+     * @return this para chamadas encadeadas
+     */
+    public PDFBuilder addHorizontalRule() {
+        return addHorizontalRule(Color.BLACK);
     }
 
     /**
