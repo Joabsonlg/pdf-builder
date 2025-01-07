@@ -4,7 +4,7 @@
 
     <groupId>io.github.joabsonlg</groupId>
     <artifactId>pdf-builder</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>PDF Builder</name>
@@ -29,7 +29,7 @@
 
     <scm>
         <connection>scm:git:https://github.com/Joabsonlg/pdf-builder.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:Joabsonlg/pdf-builder.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/Joabsonlg/pdf-builder.git</developerConnection>
         <url>https://github.com/Joabsonlg/pdf-builder</url>
       <tag>pdf-builder-1.0.0</tag>
   </scm>
