@@ -39,7 +39,7 @@ public final class Logo {
         // Renderiza a imagem da esquerda
         if (leftImage != null) {
             float imageX = marginLeft + style.getImageMargin();
-            float imageY = y - style.getImageHeight() + (style.getFontSize() / 2);
+            float imageY = y - style.getImageHeight() + style.getFontSize();
 
             // Calcula as dimensões da imagem mantendo a proporção se necessário
             float imageWidth = style.getImageWidth();
@@ -67,7 +67,7 @@ public final class Logo {
         // Renderiza a imagem da direita
         if (rightImage != null) {
             float imageX = pageWidth - marginRight - style.getImageWidth() - style.getImageMargin();
-            float imageY = y - style.getImageHeight() + (style.getFontSize() / 2);
+            float imageY = y - style.getImageHeight() + style.getFontSize(); // Ajustado para ficar mais próximo da linha
 
             // Calcula as dimensões da imagem mantendo a proporção se necessário
             float imageWidth = style.getImageWidth();

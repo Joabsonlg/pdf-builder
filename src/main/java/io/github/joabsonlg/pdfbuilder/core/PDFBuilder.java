@@ -7,6 +7,7 @@ import io.github.joabsonlg.pdfbuilder.components.logo.LogoStyle;
 import io.github.joabsonlg.pdfbuilder.components.page.PageNumbering;
 import io.github.joabsonlg.pdfbuilder.components.page.PageSection;
 import io.github.joabsonlg.pdfbuilder.components.table.Table;
+import io.github.joabsonlg.pdfbuilder.components.text.FilterParameters;
 import io.github.joabsonlg.pdfbuilder.components.text.Heading;
 import io.github.joabsonlg.pdfbuilder.components.text.Paragraph;
 import io.github.joabsonlg.pdfbuilder.components.text.SimpleText;
@@ -440,6 +441,8 @@ public class PDFBuilder {
 
     /**
      * Adiciona uma tabela ao documento.
+     * Se a tabela for muito grande para caber em uma única página,
+     * ela será automaticamente dividida em múltiplas páginas.
      *
      * @param table Componente de tabela
      * @return this para chamadas encadeadas
@@ -448,18 +451,65 @@ public class PDFBuilder {
         try {
             PDRectangle contentArea = config.getSafeArea().getContentArea(config.getPageSize());
             float safeWidth = contentArea.getWidth();
-
-            float tableHeight = table.calculateHeight();
-
-            checkNewPage(tableHeight);
-
-            float newY = table.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
+            float bottomLimit = contentArea.getLowerLeftY();
+            
+            // Espaço disponível na página atual
+            float availableHeight = currentPosition.getY() - bottomLimit - 20; // 20pts de margem
+            
+            // Número total de linhas de dados (sem contar o cabeçalho)
+            int totalDataRows = table.getDataRowCount();
+            
+            // Se não houver linhas de dados, não há nada para renderizar
+            if (totalDataRows <= 0) {
+                return this;
+            }
+            
+            // Determina quantas linhas cabem na página atual
+            int maxRowsInCurrentPage = table.calculateMaxRowsFitting(availableHeight, true);
+            
+            // Se nem uma linha cabe na página atual, criamos uma nova página
+            if (maxRowsInCurrentPage <= 0) {
+                addNewPageInternal();
+                // Recalcula disponibilidade de espaço
+                availableHeight = currentPosition.getY() - bottomLimit - 20;
+                maxRowsInCurrentPage = table.calculateMaxRowsFitting(availableHeight, true);
+            }
+            
+            // Renderiza as linhas que cabem na página atual
+            float newY = table.renderRows(contentStream, currentPosition.getX(), currentPosition.getY(), 
+                                         safeWidth, 0, maxRowsInCurrentPage, true);
             currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
-
-            // Adiciona espaço após a tabela
-            moveDown(20); // 20 pontos de espaço após a tabela
-
-            LOGGER.debug("Tabela adicionada ao documento");
+            
+            // Linhas restantes para renderizar
+            int remainingRows = totalDataRows - maxRowsInCurrentPage;
+            int currentRowIndex = maxRowsInCurrentPage;
+            
+            // Se ainda houver linhas para renderizar, continua em novas páginas
+            while (remainingRows > 0) {
+                // Cria uma nova página
+                addNewPageInternal();
+                
+                // Calcula quantas linhas cabem nesta nova página
+                availableHeight = currentPosition.getY() - bottomLimit - 20;
+                int maxRowsInNewPage = table.calculateMaxRowsFitting(availableHeight, true);
+                
+                // Limita ao número de linhas restantes
+                int rowsToRender = Math.min(maxRowsInNewPage, remainingRows);
+                
+                // Renderiza as próximas linhas (incluindo o cabeçalho novamente)
+                newY = table.renderRows(contentStream, currentPosition.getX(), currentPosition.getY(), 
+                                      safeWidth, currentRowIndex, rowsToRender, true);
+                currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
+                
+                // Atualiza contadores
+                currentRowIndex += rowsToRender;
+                remainingRows -= rowsToRender;
+            }
+            
+            // Adiciona espaço após a tabela na última página
+            moveDown(20);
+            
+            LOGGER.debug("Tabela adicionada ao documento em múltiplas páginas se necessário");
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar tabela", e);
@@ -486,6 +536,33 @@ public class PDFBuilder {
             return this;
         } catch (IOException e) {
             throw new RuntimeException("Erro ao adicionar lista", e);
+        }
+    }
+
+    /**
+     * Adiciona uma seção de parâmetros de filtro ao documento.
+     *
+     * @param filterParameters Componente de parâmetros de filtro
+     * @return this para chamadas encadeadas
+     */
+    public PDFBuilder addFilterParameters(FilterParameters filterParameters) {
+        try {
+            PDRectangle contentArea = config.getSafeArea().getContentArea(config.getPageSize());
+            float safeWidth = contentArea.getWidth();
+
+            // Verifica se precisa de nova página para os filtros
+            checkNewPage(50); // Altura mínima para os filtros
+
+            float newY = filterParameters.render(contentStream, currentPosition.getX(), currentPosition.getY(), safeWidth);
+            currentPosition = currentPosition.moveTo(currentPosition.getX(), newY);
+
+            // Adiciona espaço após os filtros
+            moveDown(10);
+
+            LOGGER.debug("Parâmetros de filtro adicionados ao documento");
+            return this;
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao adicionar parâmetros de filtro", e);
         }
     }
 

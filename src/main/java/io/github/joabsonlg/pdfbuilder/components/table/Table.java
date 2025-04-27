@@ -19,6 +19,7 @@ public final class Table {
     private final float[] columnWidths;
     private final float rowHeight;
     private final PDFont font;
+    private final PDFont headerFont; // Nova propriedade para a fonte do cabeçalho
     private final float fontSize;
     private final Color textColor;
     private final Color borderColor;
@@ -32,6 +33,9 @@ public final class Table {
         this.columnWidths = builder.columnWidths;
         this.rowHeight = builder.rowHeight;
         this.font = builder.font;
+        // Define a fonte em negrito para o cabeçalho, ou usa a fonte regular se não for possível
+        this.headerFont = builder.headerFont != null ? builder.headerFont 
+                                                     : new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
         this.fontSize = builder.fontSize;
         this.textColor = builder.textColor;
         this.borderColor = builder.borderColor;
@@ -41,6 +45,11 @@ public final class Table {
         this.headerTextColor = builder.headerTextColor;
     }
 
+    /**
+     * Calcula a altura total da tabela.
+     * 
+     * @return A altura em pontos
+     */
     public float calculateHeight() {
         float totalHeight = 0;
 
@@ -57,11 +66,73 @@ public final class Table {
         return totalHeight;
     }
 
+    /**
+     * Calcula a altura de um número específico de linhas da tabela.
+     * 
+     * @param numRows O número de linhas a considerar
+     * @param includeHeader Se deve incluir a altura do cabeçalho
+     * @return A altura em pontos
+     */
+    public float calculateHeightForRows(int numRows, boolean includeHeader) {
+        float totalHeight = 0;
+        
+        // Adiciona altura do cabeçalho se necessário
+        if (includeHeader && drawHeader) {
+            totalHeight += rowHeight;
+        }
+        
+        // Adiciona altura das linhas de dados
+        int dataRows = Math.min(numRows, data.size() - (drawHeader ? 1 : 0));
+        totalHeight += dataRows * rowHeight;
+        
+        // Adiciona altura das bordas
+        if (borderWidth > 0) {
+            int totalRows = dataRows + (includeHeader && drawHeader ? 1 : 0);
+            totalHeight += totalRows * borderWidth;
+        }
+        
+        return totalHeight;
+    }
 
     /**
-     * Renderiza a tabela no PDPageContentStream.
+     * Calcula o número máximo de linhas que cabem em uma determinada altura.
+     * 
+     * @param availableHeight Altura disponível em pontos
+     * @param includeHeader Se deve incluir o cabeçalho
+     * @return O número de linhas de dados (excluindo o cabeçalho) que cabem na altura disponível
+     */
+    public int calculateMaxRowsFitting(float availableHeight, boolean includeHeader) {
+        float headerHeight = (includeHeader && drawHeader) ? rowHeight + borderWidth : 0;
+        float rowTotalHeight = rowHeight + borderWidth;
+        
+        float heightForDataRows = availableHeight - headerHeight;
+        int maxRows = (int) Math.floor(heightForDataRows / rowTotalHeight);
+        
+        // O número de linhas não pode exceder o número de linhas de dados disponíveis
+        return Math.min(maxRows, data.size() - (drawHeader ? 1 : 0));
+    }
+
+    /**
+     * Renderiza a tabela completa no PDPageContentStream.
      */
     public float render(PDPageContentStream contentStream, float x, float y, float availableWidth) throws IOException {
+        return renderRows(contentStream, x, y, availableWidth, 0, data.size() - (drawHeader ? 1 : 0), true);
+    }
+    
+    /**
+     * Renderiza um intervalo específico de linhas da tabela.
+     * 
+     * @param contentStream Stream do conteúdo da página
+     * @param x Posição X inicial
+     * @param y Posição Y inicial
+     * @param availableWidth Largura disponível
+     * @param startRow Índice da primeira linha de dados a renderizar (0 é a primeira linha de dados)
+     * @param rowCount Número de linhas de dados a renderizar
+     * @param includeHeader Se deve incluir o cabeçalho
+     * @return A nova posição Y após renderizar as linhas
+     */
+    public float renderRows(PDPageContentStream contentStream, float x, float y, float availableWidth, 
+                            int startRow, int rowCount, boolean includeHeader) throws IOException {
         float currentY = y;
         float tableWidth = 0;
         for (float columnWidth : columnWidths) {
@@ -77,14 +148,19 @@ public final class Table {
             }
         }
 
-        // Desenha o cabeçalho
-        if (!data.isEmpty() && drawHeader) {
+        // Desenha o cabeçalho, se solicitado
+        if (!data.isEmpty() && drawHeader && includeHeader) {
             List<String> headerRow = data.get(0);
             currentY = drawRow(contentStream, headerRow, x, currentY, true, adjustedColumnWidths);
         }
 
+        // Calcula o índice inicial e final para as linhas de dados
+        int headerOffset = drawHeader ? 1 : 0;
+        int startIndex = headerOffset + startRow;
+        int endIndex = Math.min(startIndex + rowCount, data.size());
+        
         // Desenha as linhas de dados
-        for (int i = drawHeader ? 1 : 0; i < data.size(); i++) {
+        for (int i = startIndex; i < endIndex; i++) {
             List<String> row = data.get(i);
             currentY = drawRow(contentStream, row, x, currentY, false, adjustedColumnWidths);
         }
@@ -96,6 +172,7 @@ public final class Table {
         float currentX;
         Color bgColor = isHeader ? headerBackgroundColor : null;
         Color txtColor = isHeader ? headerTextColor : textColor;
+        PDFont currentFont = isHeader ? headerFont : font;
 
         // Calcula a largura total da tabela
         float tableWidth = 0;
@@ -112,7 +189,7 @@ public final class Table {
             float columnWidth = columnWidths[i];
             float maxWidth = columnWidth - 10; // 5 pixels de padding de cada lado
 
-            List<String> lines = wrapText(cellText, font, fontSize, maxWidth);
+            List<String> lines = wrapText(cellText, currentFont, fontSize, maxWidth);
             wrappedTexts.add(lines);
 
             float textHeight = lines.size() * fontSize;
@@ -152,12 +229,12 @@ public final class Table {
                 String line = lines.get(lineIndex);
 
                 // Calcula a posição X para centralizar a linha horizontalmente
-                float textWidth = font.getStringWidth(line) / 1000 * fontSize;
+                float textWidth = currentFont.getStringWidth(line) / 1000 * fontSize;
                 float textX = currentX + (columnWidth - textWidth) / 2;
                 float textY = startY + (lines.size() - 1 - lineIndex) * fontSize;
 
                 contentStream.beginText();
-                contentStream.setFont(font, fontSize);
+                contentStream.setFont(currentFont, fontSize);
                 contentStream.setNonStrokingColor(txtColor);
                 contentStream.newLineAtOffset(textX, textY);
                 contentStream.showText(line);
@@ -227,6 +304,27 @@ public final class Table {
         return lines;
     }
 
+    /**
+     * Retorna o número total de linhas na tabela, incluindo o cabeçalho.
+     */
+    public int getTotalRows() {
+        return data.size();
+    }
+    
+    /**
+     * Retorna o número de linhas de dados na tabela (excluindo o cabeçalho).
+     */
+    public int getDataRowCount() {
+        return data.size() - (drawHeader ? 1 : 0);
+    }
+    
+    /**
+     * Verifica se esta tabela tem cabeçalho.
+     */
+    public boolean hasHeader() {
+        return drawHeader;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -236,6 +334,7 @@ public final class Table {
         private float[] columnWidths = new float[0];
         private float rowHeight = 20f;
         private PDFont font;
+        private PDFont headerFont;
         private float fontSize = 12f;
         private Color textColor = Color.BLACK;
         private Color borderColor = Color.BLACK;
@@ -278,6 +377,14 @@ public final class Table {
          */
         public Builder withFont(PDFont font) {
             this.font = font;
+            return this;
+        }
+
+        /**
+         * Define a fonte do cabeçalho.
+         */
+        public Builder withHeaderFont(PDFont font) {
+            this.headerFont = font;
             return this;
         }
 
